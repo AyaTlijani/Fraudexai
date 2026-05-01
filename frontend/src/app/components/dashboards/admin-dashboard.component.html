@@ -1,0 +1,210 @@
+<div class="command-center">
+
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div class="top-bar-content">
+
+      <div class="logo-section">
+        <h1 class="logo-text">🏦 Centre Fraude RCC Bank</h1>
+      </div>
+
+      <div class="search-section">
+        <input
+          class="search-input"
+          placeholder="Rechercher alertes, utilisateurs ou transactions..."
+        />
+        <span class="search-icon">🔍</span>
+      </div>
+
+      <div class="right-section">
+
+        <!-- ✅ LIVE ALERT COUNTER -->
+        <div class="alert-badge">
+          <span>{{ alertCount }} Alertes actives</span>
+        </div>
+
+        <button class="forensic-btn" (click)="openForensicConsole()">
+          ⚡ Console Forensique
+        </button>
+
+        <button class="ai-lab-btn" (click)="openAiLaboratory()">
+          🧠 Laboratoire IA
+        </button>
+
+        <button class="data-analyst-btn" (click)="openDataAnalyst()">
+          🔬 Data Analyst
+        </button>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= VISUALIZATION ================= -->
+  <div class="ai-dashboard">
+
+    <div class="ai-title">
+      🧠 AI Model Performance Dashboard
+    </div>
+
+    <div class="charts-row">
+
+      <div class="chart-box small">
+        <h3>Precision / Recall / F1</h3>
+        <canvas id="barChart"></canvas>
+      </div>
+
+      <div class="chart-box small">
+        <h3>Model Behavior Stability</h3>
+        <canvas id="radarChart"></canvas>
+      </div>
+
+    </div>
+
+    <!-- 🔥 LIVE STREAM TABLE -->
+    <div class="stream-section">
+
+      <h2>📡 Live Fraud Transactions</h2>
+
+      <div class="table-wrapper">
+
+        <table class="stream-table">
+
+          <thead>
+            <tr>
+              <th>TX ID</th>
+              <th>Status</th>
+              <th>Risk</th>
+              <th>Score</th>
+              
+            </tr>
+          </thead>
+
+          <tbody>
+
+            <tr
+              *ngFor="let tx of streamData"
+              [ngClass]="{
+                'fraud-row': tx.status === 'FRAUD',
+                'safe-row': tx.status !== 'FRAUD'
+              }"
+            >
+
+              <td class="tx-id">
+                #{{ tx.tx_id }}
+              </td>
+
+              <td>
+                <span
+                  class="badge"
+                  [ngClass]="tx.status === 'FRAUD' ? 'badge-fraud' : 'badge-safe'"
+                >
+                  {{ tx.status }}
+                </span>
+              </td>
+
+              <td>
+                <span
+                  class="risk"
+                  [ngClass]="tx.risk.toLowerCase()"
+                >
+                  {{ tx.risk }}
+                </span>
+              </td>
+
+              <td class="score">
+                {{ tx.score | number:'1.2-2' }}
+              </td>
+
+              
+
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  </div>
+<!-- ================= ADMIN REVIEW TABLE ================= -->
+
+<div class="stream-section">
+
+  <h2>🧠 Admin Review - Transaction History</h2>
+
+  <div class="table-wrapper">
+
+    <table class="stream-table">
+
+      <thead>
+        <tr>
+          <th>TX ID</th>
+          <th>Status</th>
+          <th>Risk</th>
+          <th>Score</th>
+          <th>Label</th>
+          <th>Comment</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        <tr
+          *ngFor="let tx of historyData"
+          [ngClass]="{
+            'fraud-row': tx.adminLabel === 'FALSE_NEGATIVE',
+            'safe-row': tx.adminLabel === 'CORRECT'
+          }"
+        >
+
+          <!-- TX ID -->
+          <td>#{{ tx.tx_id }}</td>
+
+          <!-- STATUS -->
+          <td>{{ tx.status }}</td>
+
+          <!-- RISK -->
+          <td>{{ tx.risk }}</td>
+
+          <!-- SCORE -->
+          <td>{{ tx.score | number:'1.2-2' }}</td>
+
+          <!-- ADMIN LABEL -->
+          <td>
+
+            <select
+              [(ngModel)]="tx.adminLabel"
+              (change)="updateAdminLabel(tx, tx.adminLabel)"
+            >
+              <option value="UNVERIFIED">Unverfied</option>
+              <option value="CORRECT">correct</option>
+              <option value="FALSE_POSITIVE">False Positive</option>
+              <option value="FALSE_NEGATIVE">Fasle Negative</option>
+            </select>
+
+          </td>
+
+          <!-- COMMENT -->
+          <td>
+            <input
+              type="text"
+              [(ngModel)]="tx.comment"
+              placeholder="Add admin note..."
+              (blur)="saveComment(tx)"
+            />
+          </td>
+
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+</div>
+
+</div>

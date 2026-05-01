@@ -1,0 +1,388 @@
+<div class="auth-container">
+  <!-- Gradient Background -->
+  <div class="gradient-bg"></div>
+
+  <!-- Back Button -->
+  <button
+    class="back-button"
+    (click)="onBackClick()"
+    [attr.aria-label]="'auth.backToSelectionAria' | t">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M19 12H5M12 19l-7-7 7-7"/>
+    </svg>
+    {{ 'auth.back' | t }}
+  </button>
+
+  <!-- Auth Card -->
+  <div class="auth-card">
+    <!-- Header -->
+    <div class="auth-header">
+      <h1 class="auth-title">Fraudexia</h1>
+      <div class="auth-subtitle-wrapper">
+        <p class="auth-subtitle">
+          {{ authState === 'login' ? ('auth.welcomeBack' | t) : ('auth.createYourAccount' | t) }}
+        </p>
+        <span *ngIf="authState === 'login'" class="live-pill">{{ 'auth.liveDemoMode' | t }}</span>
+        <span *ngIf="selectedRole" class="role-badge">
+          {{ selectedRole === 'client' ? ('auth.clientAccount' | t) : ('auth.adminAccount' | t) }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Login Form -->
+    <form
+      *ngIf="authState === 'login'"
+      [formGroup]="loginForm"
+      (ngSubmit)="onLogin()"
+      class="auth-form login-form"
+      [@.disabled]="false">
+
+      <section class="demo-launchpad">
+        <div class="launchpad-head">
+          <h3>{{ 'auth.tryNewFlow' | t }}</h3>
+          <p>{{ 'auth.launchpadHint' | t }}</p>
+        </div>
+
+        <div class="launchpad-actions">
+          <button type="button" class="demo-btn admin" (click)="quickLogin('admin')" [disabled]="isLoading">
+            {{ 'auth.enterAdminMission' | t }}
+          </button>
+          <button type="button" class="demo-btn client" (click)="quickLogin('client')" [disabled]="isLoading">
+            {{ 'auth.enterClientHub' | t }}
+          </button>
+        </div>
+
+        <div class="launchpad-links">
+          <button type="button" class="mini-link" (click)="openExternal('http://localhost:8501')">{{ 'auth.openAnalystApp' | t }}</button>
+          <button type="button" class="mini-link" (click)="openExternal('http://localhost:8000/docs')">{{ 'auth.openApiDocs' | t }}</button>
+        </div>
+      </section>
+      
+      <!-- Identifier Input -->
+      <div class="form-group">
+        <label for="login-identifier" class="form-label">{{ 'auth.emailOrUsername' | t }}</label>
+        <div class="input-wrapper">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+          <input
+            id="login-identifier"
+            type="text"
+            formControlName="identifier"
+            [placeholder]="'auth.emailOrUsernamePlaceholder' | t"
+            class="form-input"
+            autocomplete="username" />
+        </div>
+      </div>
+
+      <!-- Password Input -->
+      <div class="form-group">
+        <label for="login-password" class="form-label">{{ 'auth.password' | t }}</label>
+        <div class="input-wrapper">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M12 1C6.48 1 2 5.48 2 11v9c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2v-9c0-5.52-4.48-10-10-10zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 7 15.5 7 14 7.67 14 8.5s.67 1.5 1.5 1.5zM12 8c.83 0 1.5-.67 1.5-1.5S12.83 5 12 5s-1.5.67-1.5 1.5S11.17 8 12 8z" />
+          </svg>
+          <input
+            id="login-password"
+            [type]="showPassword ? 'text' : 'password'"
+            formControlName="password"
+            placeholder="••••••••"
+            class="form-input"
+            readonly
+            autocomplete="current-password" />
+          <button
+            type="button"
+            class="toggle-password"
+            (click)="togglePasswordVisibility()"
+            [attr.aria-label]="'auth.togglePasswordVisibility' | t">
+            <svg *ngIf="!showPassword" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+            <svg *ngIf="showPassword" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" />
+              <line x1="1" y1="1" x2="23" y2="23" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Virtual Keypad -->
+      <div class="keypad-container" [@.disabled]="false">
+        <div class="keypad-grid">
+          <button
+            *ngFor="let digit of keypadDigits"
+            type="button"
+            class="keypad-btn"
+            [class.empty]="digit === null"
+            (click)="onKeypadSelect(digit)"
+            [disabled]="digit === null">
+            {{ digit !== null ? digit : '' }}
+          </button>
+        </div>
+        
+        <div class="keypad-actions">
+          <button
+            type="button"
+            class="btn keypad-action-btn submit-btn"
+            (click)="onKeypadSubmit()"
+            [disabled]="isLoading">
+            <span *ngIf="isLoading" class="spinner"></span>
+            {{ 'auth.login' | t }}
+          </button>
+          
+          <button
+            type="button"
+            class="btn keypad-action-btn clear-btn"
+            (click)="onClearKeypad()">
+            {{ 'auth.clear' | t }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Remember Me & Forgot Password -->
+      <div class="form-footer">
+        <label class="checkbox-label">
+          <input type="checkbox" formControlName="rememberMe" class="checkbox" />
+          <span>{{ 'auth.rememberMe' | t }}</span>
+        </label>
+        <a href="#" class="forgot-password">{{ 'auth.forgotPassword' | t }}</a>
+      </div>
+
+      <!-- Validation Errors -->
+      <div *ngIf="validationErrors.length > 0" class="error-box">
+        <div *ngFor="let error of validationErrors" class="error-message">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" stroke="white" stroke-width="2" />
+            <circle cx="12" cy="16" r="0.5" fill="white" />
+          </svg>
+          {{ error.message }}
+        </div>
+      </div>
+    </form>
+
+    <!-- Signup Form -->
+    <form
+      *ngIf="authState === 'signup'"
+      [formGroup]="signupForm"
+      (ngSubmit)="onSignup()"
+      class="auth-form signup-form"
+      [@.disabled]="false">
+      
+      <!-- Full Name Input -->
+      <div class="form-group">
+        <label for="signup-name" class="form-label">{{ 'auth.fullName' | t }}</label>
+        <div class="input-wrapper">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 3a4 4 0 110 8 4 4 0 010-8z" />
+          </svg>
+          <input
+            id="signup-name"
+            type="text"
+            formControlName="fullName"
+            [placeholder]="'auth.fullNamePlaceholder' | t"
+            class="form-input"
+            autocomplete="name" />
+        </div>
+      </div>
+
+      <!-- Email Input -->
+      <div class="form-group">
+        <label for="signup-email" class="form-label">{{ 'auth.emailAddress' | t }}</label>
+        <div class="input-wrapper">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+          <input
+            id="signup-email"
+            type="email"
+            formControlName="email"
+            [placeholder]="'auth.emailPlaceholder' | t"
+            class="form-input"
+            inputmode="email"
+            autocomplete="email" />
+        </div>
+      </div>
+
+      <!-- Password Input -->
+      <div class="form-group">
+        <label for="signup-password" class="form-label">{{ 'auth.password' | t }}</label>
+        <p class="password-hint">{{ getPasswordError() || ('auth.passwordHint' | t) }}</p>
+        <div class="input-wrapper">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M12 1C6.48 1 2 5.48 2 11v9c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2v-9c0-5.52-4.48-10-10-10zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 7 15.5 7 14 7.67 14 8.5s.67 1.5 1.5 1.5zM12 8c.83 0 1.5-.67 1.5-1.5S12.83 5 12 5s-1.5.67-1.5 1.5S11.17 8 12 8z" />
+          </svg>
+          <input
+            id="signup-password"
+            [type]="showPassword ? 'text' : 'password'"
+            formControlName="password"
+            placeholder="••••••••"
+            class="form-input"
+            autocomplete="new-password" />
+          <button
+            type="button"
+            class="toggle-password"
+            (click)="togglePasswordVisibility()"
+            [attr.aria-label]="'auth.togglePasswordVisibility' | t">
+            <svg *ngIf="!showPassword" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+            <svg *ngIf="showPassword" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" />
+              <line x1="1" y1="1" x2="23" y2="23" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Confirm Password Input -->
+      <div class="form-group">
+        <label for="confirm-password" class="form-label">{{ 'auth.confirmPassword' | t }}</label>
+        <div class="input-wrapper">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M9 12l2 2 4-4m7 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <input
+            id="confirm-password"
+            [type]="showConfirmPassword ? 'text' : 'password'"
+            formControlName="confirmPassword"
+            placeholder="••••••••"
+            class="form-input"
+            autocomplete="new-password" />
+          <button
+            type="button"
+            class="toggle-password"
+            (click)="toggleConfirmPasswordVisibility()"
+            [attr.aria-label]="'auth.toggleConfirmPasswordVisibility' | t">
+            <svg *ngIf="!showConfirmPassword" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+            <svg *ngIf="showConfirmPassword" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" />
+              <line x1="1" y1="1" x2="23" y2="23" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Terms & Conditions -->
+      <label class="checkbox-label">
+        <input type="checkbox" formControlName="agreeToTerms" class="checkbox" />
+        <span>{{ 'auth.agreeTerms' | t }}</span>
+      </label>
+
+      <!-- Validation Errors -->
+      <div *ngIf="validationErrors.length > 0" class="error-box">
+        <div *ngFor="let error of validationErrors" class="error-message">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" stroke="white" stroke-width="2" />
+            <circle cx="12" cy="16" r="0.5" fill="white" />
+          </svg>
+          {{ error.message }}
+        </div>
+      </div>
+
+      <!-- Signup Button -->
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="isLoading">
+        <span *ngIf="isLoading" class="spinner"></span>
+        {{ isLoading ? ('auth.creatingAccount' | t) : ('auth.createAccountCta' | t) }}
+      </button>
+    </form>
+
+    <!-- Form Toggle -->
+    <div class="form-toggle">
+      <p *ngIf="authState === 'login'" class="toggle-text">
+        {{ 'auth.noAccountQuestion' | t }}
+        <button
+          type="button"
+          class="toggle-link"
+          (click)="onToggleAuthState('signup')">
+          {{ 'auth.signUp' | t }}
+        </button>
+      </p>
+      <p *ngIf="authState === 'signup'" class="toggle-text">
+        {{ 'auth.haveAccountQuestion' | t }}
+        <button
+          type="button"
+          class="toggle-link"
+          (click)="onToggleAuthState('login')">
+          {{ 'auth.signIn' | t }}
+        </button>
+      </p>
+    </div>
+
+    <!-- Social Login (Login Form Only) -->
+    <div *ngIf="authState === 'login'" class="social-section">
+      <div class="divider">
+        <span>{{ 'auth.orContinueWith' | t }}</span>
+      </div>
+
+      <div class="social-buttons">
+        <!-- Google Login -->
+        <button
+          type="button"
+          class="social-btn google"
+          (click)="onSocialLogin('Google')"
+          [disabled]="isLoading"
+          [attr.aria-label]="'auth.signInWithGoogle' | t">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+          </svg>
+        </button>
+
+        <!-- GitHub Login -->
+        <button
+          type="button"
+          class="social-btn github"
+          (click)="onSocialLogin('GitHub')"
+          [disabled]="isLoading"
+          [attr.aria-label]="'auth.signInWithGithub' | t">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.6.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+          </svg>
+        </button>
+
+        <!-- Microsoft Login -->
+        <button
+          type="button"
+          class="social-btn microsoft"
+          (click)="onSocialLogin('Microsoft')"
+          [disabled]="isLoading"
+          [attr.aria-label]="'auth.signInWithMicrosoft' | t">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <rect x="2" y="2" width="9" height="9" fill="#F25022"/>
+            <rect x="13" y="2" width="9" height="9" fill="#7FBA00"/>
+            <rect x="2" y="13" width="9" height="9" fill="#00A4EF"/>
+            <rect x="13" y="13" width="9" height="9" fill="#FFB900"/>
+          </svg>
+        </button>
+
+        <!-- Apple Login -->
+        <button
+          type="button"
+          class="social-btn apple"
+          (click)="onSocialLogin('Apple')"
+          [disabled]="isLoading"
+          [attr.aria-label]="'auth.signInWithApple' | t">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.3-3.14-2.53C4.25 17 2.94 12.46 4.7 9.12c.9-1.56 2.64-2.55 4.48-2.58 1.3-.02 2.52.77 3.57.77 1.07 0 2.71-.77 4.57-.64 1.24.02 2.41.7 3.1 1.75-1.35 1.06-2.37 2.71-2.01 5.12z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Decorative Elements -->
+  <div class="decorative-element dots-top"></div>
+  <div class="decorative-element dots-bottom"></div>
+</div>

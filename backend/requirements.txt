@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+torch
+numpy
+pandas
+scikit-learn
+imbalanced-learn
+pickle-mixin
+shap

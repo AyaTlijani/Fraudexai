@@ -1,0 +1,352 @@
+<div class="forensic-lab">
+  <!-- Header Section -->
+  <div class="forensic-header">
+    <button class="back-btn" (click)="goBackToDashboard()">← Return to Dashboard</button>
+
+    <div class="investigation-title">
+      <div class="breadcrumb">
+        <span class="breadcrumb-item">Fraudexia</span>
+        <span class="breadcrumb-separator">›</span>
+        <span class="breadcrumb-item">Active Investigations</span>
+        <span class="breadcrumb-separator">›</span>
+        <span class="breadcrumb-item active">Investigation: User {{ userId }}</span>
+      </div>
+      <h1 class="title">Forensic Case Analysis: {{ userId }}</h1>
+    </div>
+
+    <div class="risk-pulse">
+      <svg class="risk-gauge" viewBox="0 0 120 120">
+        <defs>
+          <radialGradient id="riskGradient" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" style="stop-color:#FF4D4D;stop-opacity:0.4" />
+            <stop offset="100%" style="stop-color:#FF4D4D;stop-opacity:0" />
+          </radialGradient>
+        </defs>
+
+        <!-- Background circle -->
+        <circle cx="60" cy="60" r="50" fill="none" stroke="#1a1a2e" stroke-width="6" />
+
+        <!-- Animated gradient circle -->
+        <circle
+          cx="60"
+          cy="60"
+          r="50"
+          fill="url(#riskGradient)"
+          class="risk-pulse-ring"
+        />
+
+        <!-- Progress circle -->
+        <circle
+          cx="60"
+          cy="60"
+          r="50"
+          fill="none"
+          stroke="#FF4D4D"
+          stroke-width="6"
+          stroke-dasharray="314.16"
+          stroke-dashoffset="25.13"
+          class="risk-progress"
+        />
+
+        <!-- Center text -->
+        <text x="60" y="70" text-anchor="middle" class="risk-text">{{ riskScore }}%</text>
+      </svg>
+
+      <div class="risk-label">
+        <div class="risk-title">Risk Score</div>
+        <div class="risk-status">🔴 CRITICAL</div>
+      </div>
+    </div>
+
+    <div class="action-buttons">
+      <button class="glass-btn export-btn" (click)="exportPDF()">
+        <span class="btn-icon">📄</span> Export PDF
+      </button>
+      <button class="glass-btn audit-btn" (click)="viewAuditLog()">
+        <span class="btn-icon">📋</span> Audit Log
+      </button>
+    </div>
+  </div>
+
+  <!-- Timeline Section -->
+  <div class="timeline-section">
+    <div class="section-header">
+      <h2>⏱️ Transaction Timeline</h2>
+      <span class="anomaly-badge">{{ suspiciousEventCount }} Suspicious Events</span>
+    </div>
+
+    <div class="timeline-container">
+      <svg class="timeline-svg" viewBox="0 0 1000 120">
+        <!-- Timeline line -->
+        <line x1="50" y1="60" x2="950" y2="60" stroke="rgba(255, 77, 77, 0.2)" stroke-width="2" />
+
+        <!-- Timeline nodes -->
+        <g *ngFor="let node of timelineNodes" (mouseenter)="onNodeHover(node)" (mouseleave)="onNodeLeave()">
+          <!-- Node line -->
+          <line
+            [attr.x1]="getNodeX(node.x)"
+            [attr.y1]="60"
+            [attr.x2]="getNodeX(node.x)"
+            [attr.y2]="getNodeY2(node.isSuspicious)"
+            stroke="rgba(255, 77, 77, 0.3)"
+            stroke-width="1"
+          />
+
+          <!-- Node circle -->
+          <circle
+            [attr.cx]="getNodeX(node.x)"
+            [attr.cy]="60"
+            [attr.r]="getNodeRadius(node.isSuspicious)"
+            [attr.fill]="getNodeFill(node.isSuspicious)"
+            [attr.class]="getNodeClass(node.isSuspicious)"
+            style="cursor: pointer; transition: all 0.3s ease;"
+          />
+
+          <!-- Suspicious glow -->
+          <circle
+            *ngIf="node.isSuspicious"
+            [attr.cx]="getNodeX(node.x)"
+            [attr.cy]="60"
+            [attr.r]="10"
+            fill="none"
+            stroke="#FF4D4D"
+            stroke-width="2"
+            class="timeline-glow"
+          />
+
+          <!-- Timestamp label -->
+          <text [attr.x]="getNodeX(node.x)" [attr.y]="100" text-anchor="middle" class="timeline-label">
+            {{ node.timestamp.split(' ')[1] }}
+          </text>
+        </g>
+      </svg>
+
+      <!-- Tooltip -->
+      <div *ngIf="hoveredNode" class="timeline-tooltip" [style.left.%]="getTooltipLeftPercent(hoveredNode.x)">
+        <div class="tooltip-content">
+          <div class="tooltip-header">{{ hoveredNode.id }}</div>
+          <div class="tooltip-row">
+            <span class="label">Amount:</span>
+            <span class="value" [ngClass]="hoveredNode.isSuspicious ? 'anomaly' : ''">
+              ${{ hoveredNode.amount.toFixed(2) }}
+            </span>
+          </div>
+          <div class="tooltip-row">
+            <span class="label">Merchant:</span>
+            <span class="value">{{ hoveredNode.merchant }}</span>
+          </div>
+          <div class="tooltip-row">
+            <span class="label">Location:</span>
+            <span class="value">{{ hoveredNode.location }}</span>
+          </div>
+          <div class="tooltip-row" *ngIf="hoveredNode.isSuspicious">
+            <span class="alert-icon">⚠️</span>
+            <span class="alert-text">SUSPICIOUS</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Middle Row: Heatmap & Chart -->
+  <div class="insights-row">
+    <!-- Attention Heatmap -->
+    <div class="insight-card heatmap-card">
+      <div class="card-header">
+        <h3>🧠 AI Attention Heatmap</h3>
+        <span class="card-subtitle">Feature importance for anomaly detection</span>
+      </div>
+
+      <div class="heatmap">
+        <div *ngFor="let item of heatmapData" class="heatmap-item">
+          <div class="heatmap-label">{{ item.feature }}</div>
+          <div class="heatmap-bar-container">
+            <div
+              class="heatmap-bar"
+              [style.width.%]="item.attention"
+              [style.backgroundColor]="item.color"
+              [title]="item.attention + '%'"
+            >
+              <span class="heatmap-value">{{ item.attention }}%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="insight-footer">
+        <span class="insight-label">Autoencoder Model Analysis</span>
+      </div>
+    </div>
+
+    <!-- Reconstruction Error Chart -->
+    <div class="insight-card chart-card">
+      <div class="card-header">
+        <h3>📈 Reconstruction Error</h3>
+        <span class="card-subtitle">Anomaly detection spike</span>
+      </div>
+
+      <canvas id="reconstructionChart" class="reconstruction-canvas"></canvas>
+
+      <div class="insight-footer">
+        <span class="insight-label">Higher = More anomalous (vs normal profile)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Case Details Section -->
+  <div class="case-details-section">
+    <div class="section-header">
+      <h2>🔍 Case Detail Analysis</h2>
+      <span class="detail-badge">6 Critical Anomalies Detected</span>
+    </div>
+
+    <div class="comparison-container">
+      <div class="comparison-column expected">
+        <div class="column-header">
+          <span class="column-title">✓ Expected Behavior</span>
+          <span class="column-icon">📊</span>
+        </div>
+        <div class="column-content">
+          <div *ngFor="let item of comparisonData" class="comparison-item">
+            <div class="field-name">{{ item.field }}</div>
+            <div class="expected-value">{{ item.expected }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="comparison-divider">
+        <div class="divider-line"></div>
+        <span class="divider-text">VS</span>
+        <div class="divider-line"></div>
+      </div>
+
+      <div class="comparison-column observed">
+        <div class="column-header">
+          <span class="column-title">⚠️ Observed Data</span>
+          <span class="column-icon">🚨</span>
+        </div>
+        <div class="column-content">
+          <div
+            *ngFor="let item of comparisonData"
+            class="comparison-item"
+            [ngClass]="item.anomaly ? 'anomaly' : ''"
+            (click)="selectComparisonField(item.field)"
+          >
+            <div class="field-name">{{ item.field }}</div>
+            <div class="observed-value" [ngClass]="item.anomaly ? 'anomalous' : ''">
+              {{ item.observed }}
+            </div>
+
+            <!-- Expanded detail -->
+            <div *ngIf="selectedComparisonField === item.field" class="anomaly-detail">
+              <div *ngIf="item.field === 'Travel Velocity'" class="detail-content">
+                <strong>🚨 Impossible Travel Alert:</strong><br />
+                User traveled from Paris to New York in 7 hours. Minimum flight time is 8+ hours.
+              </div>
+              <div *ngIf="item.field === 'Transaction Amount'" class="detail-content">
+                <strong>🚨 Unusual Spending:</strong><br />
+                This amount is 17x higher than typical transactions. Exceeds 99th percentile of
+                user history.
+              </div>
+              <div *ngIf="item.field === 'Location'" class="detail-content">
+                <strong>🚨 Geographic Anomaly:</strong><br />
+                Cross-continental transaction within hours of last European transaction.
+              </div>
+              <div *ngIf="item.field === 'Merchant Category'" class="detail-content">
+                <strong>🚨 Merchant Deviation:</strong><br />
+                User typically shops at groceries/cafes. Luxury venues are out of pattern.
+              </div>
+              <div *ngIf="item.field === 'Transaction Frequency'" class="detail-content">
+                <strong>🚨 Velocity Increase:</strong><br />
+                4 transactions in 3 hours vs. typical 1-2 per day spread.
+              </div>
+              <div *ngIf="item.field === 'Time Pattern'" class="detail-content">
+                <strong>🚨 Time Anomaly:</strong><br />
+                Outside user's typical activity window (08:00-18:00). Late-night spending is rare.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Action Buttons -->
+  <div class="action-footer">
+    <button class="action-btn confirm-fraud" (click)="confirmFraud()">
+      <span class="btn-glow"></span>
+      🚨 Confirm Fraud
+    </button>
+    <button class="action-btn false-positive" (click)="falsePositive()">
+      <span class="btn-glow"></span>
+      ✓ False Positive
+    </button>
+    <button class="action-btn simulate" (click)="simulateTransaction()">
+      <span class="btn-glow"></span>
+      ⚡ Simulate Transaction
+    </button>
+  </div>
+
+  <!-- Audit Log Panel -->
+  <div *ngIf="showAuditLog" class="audit-log-panel">
+    <div class="audit-header">
+      <h3>📋 Investigation Audit Log</h3>
+      <button class="close-btn" (click)="viewAuditLog()">✕</button>
+    </div>
+    <div class="audit-content">
+      <div *ngFor="let entry of auditLog; let i = index" class="audit-entry" [ngClass]="entry.status">
+        <div class="entry-time">{{ entry.timestamp }}</div>
+        <div class="entry-user">{{ entry.user }}</div>
+        <div class="entry-action">{{ entry.action }}</div>
+        <div class="entry-details">{{ entry.details }}</div>
+      </div>
+      <div *ngIf="auditLog.length === 0" class="empty-state">No audit log entries</div>
+    </div>
+  </div>
+
+  <!-- PDF Preview Panel -->
+  <div *ngIf="showPDFPreview" class="pdf-preview-panel">
+    <div class="pdf-header">
+      <h3>📄 Investigation Report Preview</h3>
+      <button class="close-btn" (click)="showPDFPreview = false">✕</button>
+    </div>
+    <div class="pdf-content">
+      <pre>{{ pdfContent }}</pre>
+    </div>
+    <div class="pdf-footer">
+      <button class="glass-btn" (click)="showPDFPreview = false">Download PDF</button>
+    </div>
+  </div>
+
+  <!-- Transaction Simulator Panel -->
+  <div *ngIf="showSimulator" class="simulator-panel">
+    <div class="simulator-header">
+      <h3>⚡ Transaction Simulator</h3>
+      <button class="close-btn" (click)="simulateTransaction()">✕</button>
+    </div>
+    <div class="simulator-content">
+      <div class="simulator-section">
+        <h4>Real-Time Simulated Transactions</h4>
+        <div class="simulated-txns">
+          <div *ngFor="let txn of simulatedTransactions" class="simulated-txn" [ngClass]="txn.isFraudAlert ? 'alert' : ''">
+            <div class="txn-merchant">{{ txn.merchant }}</div>
+            <div class="txn-amount">${{ txn.amount.toFixed(2) }}</div>
+            <div class="txn-scores">
+              <span class="score-label">AI Scores:</span>
+              <span class="score-value">AE: {{ txn.mlScores.autoencoderError.toFixed(0) }}%</span>
+              <span class="score-value">AW: {{ txn.mlScores.attentionWeight.toFixed(0) }}%</span>
+              <span class="score-value">TS: {{ txn.mlScores.transformerScore.toFixed(0) }}%</span>
+            </div>
+            <div *ngIf="txn.isFraudAlert" class="alert-badge">🚨 FRAUD ALERT</div>
+          </div>
+        </div>
+      </div>
+      <div class="simulator-section">
+        <h4>Inject Test Transaction</h4>
+        <button class="glass-btn inject-btn" (click)="injectSimulatedTransaction()">
+          ➕ Generate Test Transaction
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,156 @@
+<div class="selection-container">
+  <!-- Back Button -->
+  <button class="back-button" (click)="onBackClick()" aria-label="Go back to home page">
+    <span class="back-arrow">←</span>
+    <span class="back-text">Back</span>
+  </button>
+
+  <!-- Main Content -->
+  <div class="selection-content">
+    <!-- Header Section -->
+    <div class="selection-header">
+      <h1 class="selection-title">Choose Your Role</h1>
+      <p class="selection-subtitle">Select your account type to continue</p>
+    </div>
+
+    <!-- Cards Container -->
+    <div class="cards-container">
+      <!-- Client Card -->
+      <div
+        class="selection-card card-client"
+        [class.hovered]="cards[0].isHovered"
+        (mouseenter)="onCardHover('client', true)"
+        (mouseleave)="onCardHover('client', false)"
+        (click)="onCardClick('client')"
+        role="button"
+        tabindex="0"
+        aria-label="Select Client account type"
+        (keydown.enter)="onCardClick('client')"
+        (keydown.space)="onCardClick('client')">
+        
+        <!-- Card Icon -->
+        <div class="card-icon">
+          <svg viewBox="0 0 120 120" class="icon-svg" preserveAspectRatio="xMidYMid meet">
+            <defs>
+              <linearGradient id="clientGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#6C63FF;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#4B0082;stop-opacity:1" />
+              </linearGradient>
+            </defs>
+
+            <!-- Person Head -->
+            <circle cx="40" cy="35" r="18" fill="url(#clientGradient)" />
+
+            <!-- Person Torso -->
+            <rect x="25" y="58" width="30" height="35" rx="4" fill="url(#clientGradient)" opacity="0.9" />
+
+            <!-- Person Arms -->
+            <line x1="25" y1="65" x2="10" y2="55" stroke="url(#clientGradient)" stroke-width="6" stroke-linecap="round" />
+            <line x1="55" y1="65" x2="70" y2="55" stroke="url(#clientGradient)" stroke-width="6" stroke-linecap="round" />
+
+            <!-- Person Legs -->
+            <line x1="32" y1="93" x2="28" y2="115" stroke="url(#clientGradient)" stroke-width="5" stroke-linecap="round" />
+            <line x1="48" y1="93" x2="52" y2="115" stroke="url(#clientGradient)" stroke-width="5" stroke-linecap="round" />
+
+            <!-- Shopping Cart -->
+            <g transform="translate(65, 45)">
+              <!-- Cart Body -->
+              <path d="M 5 8 L 35 8 L 32 28 Q 32 32 28 32 L 8 32 Q 4 32 4 28 L 2 8 Z" 
+                    fill="none" stroke="#9D8FFF" stroke-width="2" stroke-linejoin="round" />
+              
+              <!-- Cart Handle -->
+              <path d="M 8 8 Q 20 0 32 8" 
+                    fill="none" stroke="#9D8FFF" stroke-width="2" stroke-linecap="round" />
+              
+              <!-- Cart Wheels -->
+              <circle cx="10" cy="32" r="2.5" fill="#9D8FFF" />
+              <circle cx="30" cy="32" r="2.5" fill="#9D8FFF" />
+              
+              <!-- Items in cart (simple circles) -->
+              <circle cx="15" cy="18" r="3" fill="#FFD700" opacity="0.8" />
+              <circle cx="22" cy="15" r="2.5" fill="#FFD700" opacity="0.7" />
+            </g>
+          </svg>
+        </div>
+
+        <!-- Card Content -->
+        <div class="card-content">
+          <h2 class="card-title">{{ cards[0].title }}</h2>
+          <p class="card-description">{{ cards[0].description }}</p>
+        </div>
+
+        <!-- Card Arrow -->
+        <div class="card-arrow">→</div>
+      </div>
+
+      <!-- Administrator Card -->
+      <div
+        class="selection-card card-admin"
+        [class.hovered]="cards[1].isHovered"
+        (mouseenter)="onCardHover('administrator', true)"
+        (mouseleave)="onCardHover('administrator', false)"
+        (click)="onCardClick('administrator')"
+        role="button"
+        tabindex="0"
+        aria-label="Select Administrator account type"
+        (keydown.enter)="onCardClick('administrator')"
+        (keydown.space)="onCardClick('administrator')">
+        
+        <!-- Card Icon -->
+        <div class="card-icon">
+          <svg viewBox="0 0 120 120" class="icon-svg" preserveAspectRatio="xMidYMid meet">
+            <defs>
+              <linearGradient id="adminGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#9D8FFF;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#6C63FF;stop-opacity:1" />
+              </linearGradient>
+            </defs>
+
+            <!-- Person Head -->
+            <circle cx="40" cy="35" r="18" fill="url(#adminGradient)" />
+
+            <!-- Person Torso -->
+            <rect x="25" y="58" width="30" height="35" rx="4" fill="url(#adminGradient)" opacity="0.9" />
+
+            <!-- Person Arms -->
+            <line x1="25" y1="65" x2="5" y2="55" stroke="url(#adminGradient)" stroke-width="6" stroke-linecap="round" />
+            <line x1="55" y1="65" x2="75" y2="55" stroke="url(#adminGradient)" stroke-width="6" stroke-linecap="round" />
+
+            <!-- Person Legs -->
+            <line x1="32" y1="93" x2="28" y2="115" stroke="url(#adminGradient)" stroke-width="5" stroke-linecap="round" />
+            <line x1="48" y1="93" x2="52" y2="115" stroke="url(#adminGradient)" stroke-width="5" stroke-linecap="round" />
+
+            <!-- Dashboard/Shield Icon -->
+            <g transform="translate(60, 40)">
+              <!-- Shield Outline -->
+              <path d="M 15 0 L 28 8 L 28 20 Q 28 30 15 36 Q 2 30 2 20 L 2 8 Z" 
+                    fill="none" stroke="#FFD700" stroke-width="2" stroke-linejoin="round" />
+              
+              <!-- Shield Checkmark (security) -->
+              <path d="M 9 18 L 13 22 L 19 14" 
+                    fill="none" stroke="#FFD700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              
+              <!-- Dashboard Grid (smaller, representing control) -->
+              <circle cx="15" cy="12" r="3" fill="#FFD700" opacity="0.7" />
+              <circle cx="21" cy="12" r="2" fill="#FFD700" opacity="0.6" />
+              <circle cx="10" cy="20" r="2" fill="#FFD700" opacity="0.6" />
+            </g>
+          </svg>
+        </div>
+
+        <!-- Card Content -->
+        <div class="card-content">
+          <h2 class="card-title">{{ cards[1].title }}</h2>
+          <p class="card-description">{{ cards[1].description }}</p>
+        </div>
+
+        <!-- Card Arrow -->
+        <div class="card-arrow">→</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Decorative Background Elements -->
+  <div class="decorative-blob blob-1"></div>
+  <div class="decorative-blob blob-2"></div>
+</div>

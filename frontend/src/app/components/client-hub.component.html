@@ -1,0 +1,453 @@
+<div class="client-hub-container" *ngIf="currentClient">
+  <!-- Header with Greeting and Notification Bell -->
+  <header class="dashboard-header">
+    <div class="header-left">
+      <h1 class="greeting">
+        {{ getTimeOfDayFrench() }}, <span class="user-name">{{ currentClient.name }}</span>
+      </h1>
+      <p class="subtitle">{{ 'client.securitySubtitle' | t }}</p>
+    </div>
+
+    <div class="header-right">
+      <!-- Notification Bell -->
+      <button class="notification-bell" [title]="activeAlerts + ' ' + ('client.activeAlertsTitle' | t)">
+        🔔
+        <span class="bell-badge" *ngIf="activeAlerts > 0">{{ activeAlerts }}</span>
+      </button>
+      <div class="open-cases-chip" *ngIf="openCases > 0">
+        📁 {{ openCases }} {{ 'client.openCases' | t }}
+      </div>
+    </div>
+  </header>
+
+  <!-- Top Row: Credit Card & Trust Score (Flexbox) -->
+  <div class="top-row">
+    <!-- Credit Card UI (Glassmorphic) - Carte Principale -->
+    <div class="credit-card-section">
+      <h3 class="section-title">💳 {{ 'client.mainCard' | t }}</h3>
+      <div class="card-container">
+        <div class="card">
+          <!-- Card Background Gradient -->
+          <div class="card-gradient"></div>
+
+          <!-- Card Content -->
+          <div class="card-content">
+            <!-- Card Header -->
+            <div class="card-header">
+              <span class="card-type">{{ currentClient.creditCard.cardType }}</span>
+              <span class="card-contactless">💳</span>
+            </div>
+
+            <!-- Chip & Logo -->
+            <div class="card-chip-section">
+              <div class="chip">★★★★</div>
+            </div>
+
+            <!-- Card Number (Masked) - Show first 12 digits masked, last 4 visible -->
+            <div class="card-number">{{ getMaskedCardNumber(currentClient.creditCard.cardNumber) }}</div>
+
+            <!-- Cardholder & Expiry -->
+            <div class="card-footer">
+              <div class="cardholder">
+                <span class="label">{{ 'client.holder' | t }}</span>
+                <span class="value">{{ currentClient.creditCard.holderName }}</span>
+              </div>
+              <div class="expiry">
+                <span class="label">{{ 'client.expires' | t }}</span>
+                <span class="value">{{ currentClient.creditCard.expiry }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card Balance Info -->
+        <div class="card-balance">
+          <div class="balance-item">
+            <span class="balance-label">{{ 'client.currentBalance' | t }}</span>
+            <span class="balance-amount">{{ currentClient.creditCard.balance | currency }}</span>
+          </div>
+          <div class="balance-divider"></div>
+          <div class="balance-item">
+            <span class="balance-label">{{ 'client.creditLimit' | t }}</span>
+            <span class="balance-amount">{{ currentClient.creditCard.limit | currency }}</span>
+          </div>
+        </div>
+
+        <div class="card-security-actions">
+          <button class="freeze-toggle" (click)="toggleCardFreeze()">
+            {{ currentClient.creditCard.isFrozen ? ('client.unfreeze' | t) : ('client.freeze' | t) }}
+          </button>
+          <span class="freeze-state" [ngClass]="currentClient.creditCard.isFrozen ? 'frozen' : 'active'">
+            {{ currentClient.creditCard.isFrozen ? ('client.cardFrozen' | t) : ('client.cardActive' | t) }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trust Score Card (Circular Gauge) - Score de Confiance -->
+    <div class="trust-score-section">
+      <h3 class="section-title">🛡️ {{ 'client.trustScore' | t }}</h3>
+      <div class="trust-score-container">
+        <!-- Circular Gauge -->
+        <div class="score-circle">
+          <svg class="score-svg" viewBox="0 0 200 200">
+            <!-- Background circle -->
+            <circle cx="100" cy="100" r="95" class="score-bg"></circle>
+            <!-- Progress circle -->
+            <circle
+              cx="100"
+              cy="100"
+              r="95"
+              class="score-progress"
+              [style.stroke]="getScoreColor(currentClient.trustScore)"
+              [style.stroke-dasharray]="((currentClient.trustScore / 100) * 596) + ' 596'"
+            ></circle>
+          </svg>
+
+          <!-- Percentage Text with ngStyle -->
+          <div class="score-text">
+            <div class="score-number" [ngStyle]="getTrustScoreStyle(currentClient.trustScore)">
+              {{ currentClient.trustScore }}%
+            </div>
+            <div class="score-status" [ngStyle]="getTrustScoreStyle(currentClient.trustScore)">
+              {{ currentClient.trustScore > 80 ? ('client.secure' | t) : (currentClient.trustScore >= 50 ? ('client.moderate' | t) : ('client.risky' | t)) }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Trust Score Details -->
+        <div class="trust-details">
+          <h3>{{ 'client.securityAssessment' | t }}</h3>
+          <ul class="trust-indicators">
+            <li class="indicator safe">
+              <span class="dot">✓</span>
+              <span>{{ 'client.realtimeMonitoring' | t }}</span>
+            </li>
+            <li class="indicator safe">
+              <span class="dot">✓</span>
+              <span>{{ 'client.locationModel' | t }}</span>
+            </li>
+            <li class="indicator warning" *ngIf="getReviewNeededCount() > 0">
+              <span class="dot">!</span>
+              <span>{{ getReviewNeededCount() }} {{ 'client.waitingReview' | t }}</span>
+            </li>
+            <li class="indicator safe" *ngIf="getReviewNeededCount() === 0">
+              <span class="dot">✓</span>
+              <span>{{ 'client.noSuspicious' | t }}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Transactions List Section -->
+  <section class="transactions-section">
+    <div class="section-header">
+      <h2>{{ 'client.recentTransactions' | t }}</h2>
+      <span class="transaction-count">{{ currentClient.recentTransactions.length }} transactions</span>
+    </div>
+
+    <!-- Policy Blocked Transactions -->
+    <div class="transactions-group" *ngIf="blockedTransactions.length > 0">
+      <h3 class="group-title">⛔ {{ 'client.blockedByPolicy' | t }}</h3>
+      <div class="transactions-table">
+        <div class="transaction-row blocked" *ngFor="let transaction of blockedTransactions">
+          <div class="transaction-cell merchant">
+            <div class="merchant-info">
+              <span class="merchant-name">{{ transaction.merchant }}</span>
+              <span class="merchant-location">
+                🌍 {{ transaction.location.city }}, {{ transaction.location.country }}
+              </span>
+            </div>
+          </div>
+
+          <div class="transaction-cell amount">
+            <span class="amount-value" [style.color]="'#FF4D4D'">
+              -{{ transaction.amount | currency }}
+            </span>
+            <span class="transaction-time">{{ transaction.timestamp }}</span>
+          </div>
+
+          <div class="transaction-cell status">
+            <span class="status-badge blocked">{{ formatPolicyCode(getPolicyReasonCode(transaction)) }}</span>
+            <span class="policy-text-inline">{{ getPolicyReasonText(transaction) }}</span>
+          </div>
+
+          <div class="transaction-cell actions">
+            <button class="action-btn report-btn" (click)="onRejectTransaction(transaction)">
+              🚨 {{ 'client.reportFraud' | t }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Suspect Transactions (Red) -->
+    <div class="transactions-group" *ngIf="suspectTransactions.length > 0">
+      <h3 class="group-title">⚠️ {{ 'client.awaitingReview' | t }}</h3>
+      <div class="transactions-table">
+        <div class="transaction-row suspect" *ngFor="let transaction of suspectTransactions">
+          <div class="transaction-cell merchant">
+            <div class="merchant-info">
+              <span class="merchant-name">{{ transaction.merchant }}</span>
+              <span class="merchant-location">
+                🌍 {{ transaction.location.city }}, {{ transaction.location.country }}
+              </span>
+            </div>
+          </div>
+
+          <div class="transaction-cell amount">
+            <span class="amount-value" [style.color]="'#FF4D4D'">
+              -{{ transaction.amount | currency }}
+            </span>
+            <span class="transaction-time">{{ transaction.timestamp }}</span>
+          </div>
+
+          <div class="transaction-cell category">
+            <span class="badge">{{ transaction.category }}</span>
+            <span class="policy-text-inline" *ngIf="isPolicyBlocked(transaction)">
+              {{ formatPolicyCode(getPolicyReasonCode(transaction)) }}
+            </span>
+          </div>
+
+          <!-- Action Buttons - Était-ce vous ? -->
+          <div class="transaction-cell actions">
+            <button class="action-btn confirm-btn" (click)="onConfirmTransaction(transaction)">
+              ✓ {{ 'client.wasMe' | t }}
+            </button>
+            <button class="action-btn report-btn" (click)="onRejectTransaction(transaction)">
+              🚨 {{ 'client.notMe' | t }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Verified Transactions (Green) -->
+    <div class="transactions-group" *ngIf="verifiedTransactions.length > 0">
+      <h3 class="group-title">✓ {{ 'client.verified' | t }}</h3>
+      <div class="transactions-table">
+        <div class="transaction-row verified" *ngFor="let transaction of verifiedTransactions">
+          <div class="transaction-cell merchant">
+            <div class="merchant-info">
+              <span class="merchant-name">{{ transaction.merchant }}</span>
+              <span class="merchant-location">
+                🌍 {{ transaction.location.city }}, {{ transaction.location.country }}
+              </span>
+            </div>
+          </div>
+
+          <div class="transaction-cell amount">
+            <span class="amount-value">{{ transaction.amount | currency }}</span>
+            <span class="transaction-time">{{ transaction.timestamp }}</span>
+          </div>
+
+          <div class="transaction-cell category">
+            <span class="badge">{{ transaction.category }}</span>
+          </div>
+
+          <div class="transaction-cell status">
+            <span class="status-badge verified">✓ {{ 'client.verified' | t }}</span>
+            <button
+              *ngIf="!isMerchantTrusted(transaction.merchant)"
+              class="trust-merchant-btn"
+              (click)="onTrustMerchant(transaction.merchant)">
+              ⭐ {{ 'client.trustMerchant' | t }}
+            </button>
+            <span *ngIf="isMerchantTrusted(transaction.merchant)" class="trusted-pill">⭐ {{ 'client.trusted' | t }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pending Review Transactions -->
+    <div class="transactions-group" *ngIf="pendingTransactions.length > 0">
+      <h3 class="group-title">🕒 {{ 'client.underInvestigation' | t }}</h3>
+      <div class="transactions-table">
+        <div class="transaction-row pending" *ngFor="let transaction of pendingTransactions">
+          <div class="transaction-cell merchant">
+            <div class="merchant-info">
+              <span class="merchant-name">{{ transaction.merchant }}</span>
+              <span class="merchant-location">
+                🌍 {{ transaction.location.city }}, {{ transaction.location.country }}
+              </span>
+            </div>
+          </div>
+
+          <div class="transaction-cell amount">
+            <span class="amount-value">{{ transaction.amount | currency }}</span>
+            <span class="transaction-time">{{ transaction.timestamp }}</span>
+          </div>
+
+          <div class="transaction-cell status">
+            <span class="status-badge pending">{{ 'client.caseOpened' | t }}</span>
+            <span class="policy-text-inline" *ngIf="isPolicyBlocked(transaction)">
+              {{ formatPolicyCode(getPolicyReasonCode(transaction)) }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="currentClient.recentTransactions.length === 0">
+      <span>{{ 'client.noTransactions' | t }}</span>
+    </div>
+  </section>
+
+  <section class="merchant-vault-section">
+    <div class="section-header">
+      <h2>⭐ {{ 'client.merchantVault' | t }}</h2>
+      <span class="transaction-count">{{ getTrustedMerchants().length }} {{ 'client.trusted' | t }}</span>
+    </div>
+
+    <div class="merchant-vault-grid">
+      <div class="trusted-merchants-column">
+        <h3 class="group-title">{{ 'client.trustedList' | t }}</h3>
+
+        <div class="trusted-merchants" *ngIf="getTrustedMerchants().length > 0; else noTrustedMerchants">
+          <div class="trusted-merchant-item" *ngFor="let merchant of getTrustedMerchants()">
+            <span class="merchant-name">⭐ {{ merchant }}</span>
+            <button class="remove-merchant-btn" (click)="onRemoveTrustedMerchant(merchant)">{{ 'client.remove' | t }}</button>
+          </div>
+        </div>
+
+        <ng-template #noTrustedMerchants>
+          <div class="empty-state compact">{{ 'client.noTrustedYet' | t }}</div>
+        </ng-template>
+      </div>
+
+      <div class="trusted-merchants-column">
+        <h3 class="group-title">{{ 'client.recommended' | t }}</h3>
+
+        <div class="merchant-suggestions" *ngIf="getSuggestedTrustedMerchants().length > 0; else noSuggestions">
+          <button
+            class="trust-suggestion-btn"
+            *ngFor="let merchant of getSuggestedTrustedMerchants()"
+            (click)="onTrustMerchant(merchant)">
+            + {{ merchant }}
+          </button>
+        </div>
+
+        <ng-template #noSuggestions>
+          <div class="empty-state compact">{{ 'client.noSuggestions' | t }}</div>
+        </ng-template>
+      </div>
+    </div>
+  </section>
+
+  <!-- Travel Mode Section -->
+  <section class="travel-mode-section">
+    <div class="section-header">
+      <h2>🌍 {{ 'client.travelMode' | t }}</h2>
+      <p class="section-subtitle">{{ 'client.travelSubtitle' | t }}</p>
+    </div>
+
+    <div class="travel-container">
+      <!-- Whitelisted Countries -->
+      <div class="whitelisted-countries">
+        <h3>{{ 'client.approvedPlaces' | t }}</h3>
+        <div class="country-flags">
+          <div class="country-flag" *ngFor="let country of currentClient.whitelistedCountries">
+            <span class="flag-emoji">{{ getCountryFlag(country) }}</span>
+            <button
+              class="remove-country-btn"
+              (click)="onRemoveCountryFromWhitelist(country)"
+              [title]="'Supprimer ' + country"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add Countries -->
+      <div class="add-countries">
+        <h3>{{ 'client.addDestination' | t }}</h3>
+        <div class="add-country-list">
+          <button
+            class="country-add-btn"
+            *ngFor="let country of getAvailableCountriesToAdd()"
+            (click)="onWhitelistCountry(country)"
+          >
+            {{ getCountryFlag(country) }} {{ country }}
+          </button>
+
+          <button class="country-add-btn disabled" *ngIf="getAvailableCountriesToAdd().length === 0">
+            ✓ {{ 'client.allCountriesAdded' | t }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Report Submission Feedback -->
+  <section class="report-feedback" *ngIf="reportStatus.message && reportStatus.success">
+    <div class="success-message">
+      <span class="success-icon">✓</span>
+      <div>
+        <h4>{{ 'client.fraudSubmitted' | t }}</h4>
+        <p>{{ reportStatus.message }}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="report-feedback" *ngIf="reportStatus.error">
+    <div class="error-message">
+      <span class="error-icon">⚠️</span>
+      <div>
+        <h4>{{ 'client.reportFailed' | t }}</h4>
+        <p>{{ reportStatus.error }}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="case-tracker" *ngIf="recentCases.length > 0">
+    <div class="section-header">
+      <h2>📁 {{ 'client.myRecentCases' | t }}</h2>
+      <span class="transaction-count">{{ recentCases.length }} case(s)</span>
+    </div>
+    <div class="case-list">
+      <div
+        class="case-row selectable"
+        *ngFor="let c of recentCases"
+        (click)="selectCase(c.caseId)"
+        [class.active]="selectedCase?.caseId === c.caseId">
+        <div class="case-id">{{ c.caseId }}</div>
+        <div class="case-summary">{{ c.summary }}</div>
+        <div class="case-status" [ngClass]="getCaseStatusClass(c.status)">{{ c.status | uppercase }}</div>
+      </div>
+    </div>
+
+    <div class="case-timeline" *ngIf="selectedCase">
+      <div class="timeline-header">
+        <h3>{{ selectedCase.caseId }} - {{ getCaseStatusLabel(selectedCase.status) }}</h3>
+        <span class="timeline-priority">{{ 'client.priority' | t }}: {{ selectedCase.priority | uppercase }}</span>
+      </div>
+
+      <div class="timeline-codes" *ngIf="extractReasonCodes(selectedCase.summary).length > 0">
+        <span class="reason-code" *ngFor="let code of extractReasonCodes(selectedCase.summary)">
+          {{ formatPolicyCode(code) }}
+        </span>
+      </div>
+
+      <div class="timeline-event" *ngFor="let event of selectedCase.timeline | slice:0:6">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <div class="timeline-main">
+            <span class="timeline-action">{{ event.action }}</span>
+            <span class="timeline-time">{{ formatEventTime(event.at) }}</span>
+          </div>
+          <div class="timeline-meta">{{ 'client.by' | t }} {{ event.actor }}</div>
+          <div class="timeline-note" *ngIf="event.note">{{ event.note }}</div>
+          <div class="timeline-codes" *ngIf="extractReasonCodes(event.note).length > 0">
+            <span class="reason-code" *ngFor="let code of extractReasonCodes(event.note)">
+              {{ formatPolicyCode(code) }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

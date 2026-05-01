@@ -1,0 +1,204 @@
+<div class="hub-container" [ngClass]="{ 'dark-mode': isDarkMode, 'light-mode': !isDarkMode }">
+  <!-- Top Navigation -->
+  <div class="hub-header">
+    <div class="header-left">
+      <h1 class="hub-title">🏦 Financial Security Hub</h1>
+      <p class="hub-subtitle">Your complete fraud protection dashboard</p>
+    </div>
+    <div class="header-right">
+      <button class="mode-toggle" (click)="toggleDarkMode()">
+        <span *ngIf="isDarkMode">☀️ Light</span>
+        <span *ngIf="!isDarkMode">🌙 Dark</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Trust Score & Safety Status Section -->
+  <div class="top-section">
+    <div class="trust-score-card glassmorphic">
+      <h2 class="card-title">Trust Score</h2>
+      <canvas #trustGauge class="trust-gauge"></canvas>
+      <p class="safety-status">{{ safetyStatus }}</p>
+      <div class="status-indicator">
+        <span class="status-dot"></span>
+        <span class="status-text">Protected & Verified</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Grid Section -->
+  <div class="main-grid">
+    <!-- Travel Mode Card -->
+    <div class="grid-card glassmorphic travel-mode-card">
+      <div class="card-header">
+        <h3 class="card-title">✈️ Travel Mode</h3>
+        <label class="toggle-switch">
+          <input type="checkbox" [(ngModel)]="travelModeEnabled" (change)="toggleTravelMode()">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <p class="card-description" *ngIf="!travelModeEnabled">
+        Enable when traveling to prevent fraud alerts
+      </p>
+
+      <form *ngIf="showTravelForm && travelModeEnabled" class="travel-form">
+        <div class="form-group">
+          <label>Destination</label>
+          <input
+            type="text"
+            [(ngModel)]="travelDestination"
+            name="destination"
+            placeholder="e.g., Paris, France"
+            class="form-input"
+          />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Start Date</label>
+            <input
+              type="date"
+              [(ngModel)]="travelStartDate"
+              name="startDate"
+              class="form-input"
+            />
+          </div>
+          <div class="form-group">
+            <label>End Date</label>
+            <input
+              type="date"
+              [(ngModel)]="travelEndDate"
+              name="endDate"
+              class="form-input"
+            />
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-primary" (click)="saveTravelMode()">
+            Save Settings
+          </button>
+          <button type="button" class="btn btn-secondary" (click)="cancelTravelMode()">
+            Cancel
+          </button>
+        </div>
+      </form>
+
+      <div *ngIf="travelModeEnabled" class="travel-status">
+        <span class="badge badge-success">🌍 Travel Mode Active</span>
+        <p class="travel-dates">
+          {{ travelDestination }} • {{ travelStartDate }} to {{ travelEndDate }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Protection History Card -->
+    <div class="grid-card glassmorphic protection-history-card">
+      <div class="card-header">
+        <h3 class="card-title">🛡️ Protection History</h3>
+        <span class="badge badge-thank-you">Thank You!</span>
+      </div>
+
+      <div class="history-list">
+        <div
+          *ngFor="let item of protectionHistory"
+          class="history-item"
+          [style.border-left-color]="getProtectionColor(item.type)"
+        >
+          <div class="history-icon">{{ item.icon }}</div>
+          <div class="history-content">
+            <div class="history-header">
+              <h4 class="history-title">{{ item.description }}</h4>
+              <span class="history-badge" [style.color]="getProtectionColor(item.type)">
+                {{ getProtectionLabel(item.type) }}
+              </span>
+            </div>
+            <p class="history-location">{{ item.location }}</p>
+            <p class="history-time">{{ item.timestamp }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Security Notifications Card -->
+    <div class="grid-card glassmorphic notifications-card">
+      <div class="card-header">
+        <h3 class="card-title">📬 Security Notifications</h3>
+        <span class="notification-badge" *ngIf="getUnreadCount() > 0">
+          {{ getUnreadCount() }}
+        </span>
+      </div>
+
+      <div class="notifications-list">
+        <div
+          *ngFor="let notification of securityNotifications"
+          class="notification-item"
+          [ngClass]="{ 'unread': !notification.read }"
+          (click)="markNotificationRead(notification.id)"
+        >
+          <div class="notification-dot" [style.background-color]="notification.color"></div>
+          <div class="notification-content">
+            <div class="notification-header">
+              <span class="notification-label">{{ notification.label }}</span>
+              <span class="notification-time">{{ notification.timestamp }}</span>
+            </div>
+            <p class="notification-message">{{ notification.message }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Area -->
+  <div class="action-area">
+    <button class="btn btn-prominent" (click)="openReportModal()">
+      📞 Report a Problem
+    </button>
+    <p class="action-hint">Experience an issue? Let us know and we'll help immediately</p>
+  </div>
+
+  <!-- Report Modal -->
+  <div class="modal-overlay" *ngIf="showReportModal" (click)="closeReportModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Report a Problem</h2>
+        <button class="modal-close" (click)="closeReportModal()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Problem Description *</label>
+          <textarea
+            [(ngModel)]="reportDescription"
+            placeholder="Please describe the issue you're experiencing..."
+            class="form-textarea"
+            rows="5"
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Attach Screenshot (Optional)</label>
+          <div class="file-upload">
+            <input
+              type="file"
+              #fileInput
+              (change)="onFileSelected($event)"
+              accept="image/*,.pdf"
+              class="file-input"
+            />
+            <label class="file-label" (click)="fileInput.click()">
+              📎 Choose File or Drag & Drop
+            </label>
+            <p *ngIf="selectedFile" class="file-name">{{ selectedFile.name }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeReportModal()">Cancel</button>
+        <button class="btn btn-primary" (click)="submitReport()">Submit Report</button>
+      </div>
+    </div>
+  </div>
+</div>

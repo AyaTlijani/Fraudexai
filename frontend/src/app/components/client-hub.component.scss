@@ -1,0 +1,1349 @@
+.client-hub-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+// ========== HEADER ==========
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+  gap: 20px;
+
+  .header-left {
+    flex: 1;
+    min-width: 250px;
+
+    .greeting {
+      font-size: 32px;
+      font-weight: 700;
+      color: #0f0f1e;
+      margin: 0 0 8px 0;
+
+      .user-name {
+        background: linear-gradient(135deg, #6c63ff 0%, #5a52d5 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: #666;
+      margin: 0;
+    }
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .notification-bell {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 2px solid rgba(107, 99, 255, 0.3);
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(12px);
+    font-size: 24px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      transform: scale(1.1);
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 4px 16px rgba(107, 99, 255, 0.2);
+    }
+
+    .bell-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: #FF4D4D;
+      color: white;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      animation: pulse-badge 2s ease-in-out infinite;
+    }
+  }
+}
+
+// ========== TOP ROW (FLEXBOX) ==========
+.top-row {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+
+  @media (max-width: 1024px) {
+    flex-direction: column;
+  }
+}
+
+// Section Titles
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #0f0f1e;
+  margin: 0 0 12px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+// Credit Card Section
+.credit-card-section {
+  flex: 0 0 auto;
+  min-width: 320px;
+  max-width: 400px;
+
+  .card-container {
+    position: relative;
+  }
+
+  .card {
+    width: 100%;
+    aspect-ratio: 1.586 / 1;
+    background: linear-gradient(135deg, rgba(107, 99, 255, 0.9) 0%, rgba(90, 82, 213, 0.85) 100%);
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(107, 99, 255, 0.3);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+
+    &:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 30px 80px rgba(107, 99, 255, 0.4);
+    }
+
+    .card-gradient {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 380"><defs><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" /></filter></defs><rect width="600" height="380" fill="rgba(255,255,255,0.05)" filter="url(%23noise)"/></svg>');
+      opacity: 0.5;
+    }
+
+    .card-content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+      color: white;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .card-type {
+        font-weight: 700;
+        font-size: 16px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .card-contactless {
+        font-size: 20px;
+      }
+    }
+
+    .card-chip-section {
+      display: flex;
+      gap: 12px;
+
+      .chip {
+        width: 48px;
+        height: 36px;
+        background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #0f0f1e;
+      }
+    }
+
+    .card-number {
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      word-spacing: 8px;
+      text-align: center;
+      margin: 24px 0;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+
+      .cardholder,
+      .expiry {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+
+        .label {
+          opacity: 0.7;
+          font-size: 10px;
+          letter-spacing: 0.5px;
+        }
+
+        .value {
+          font-weight: 600;
+          font-size: 12px;
+        }
+      }
+    }
+  }
+
+  .card-balance {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 12px;
+    display: flex;
+    justify-content: space-around;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 8px 24px rgba(107, 99, 255, 0.1);
+
+    .balance-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      text-align: center;
+
+      .balance-label {
+        font-size: 12px;
+        color: #999;
+        font-weight: 500;
+      }
+
+      .balance-amount {
+        font-size: 16px;
+        font-weight: 700;
+        color: #6c63ff;
+      }
+    }
+
+    .balance-divider {
+      width: 1px;
+      background: rgba(0, 0, 0, 0.1);
+      margin: 0 12px;
+    }
+  }
+}
+
+// Trust Score Section
+.trust-score-section {
+  flex: 1;
+  min-width: 280px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  padding: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 8px 32px rgba(107, 99, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 24px;
+
+  .trust-score-container {
+    text-align: center;
+  }
+
+  .score-circle {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    margin: 0 auto 20px;
+
+    .score-svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+
+      .score-bg {
+        fill: none;
+        stroke: rgba(107, 99, 255, 0.1);
+        stroke-width: 8;
+      }
+
+      .score-progress {
+        fill: none;
+        stroke-width: 8;
+        stroke-linecap: round;
+        transition: stroke-dasharray 0.6s ease;
+      }
+    }
+
+    .score-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      .score-number {
+        font-size: 32px;
+        font-weight: 700;
+        color: #0f0f1e;
+      }
+
+      .score-status {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+    }
+  }
+
+  .trust-details {
+    text-align: left;
+
+    h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #0f0f1e;
+      margin: 0 0 12px 0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .trust-indicators {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+
+      .indicator {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        font-size: 12px;
+        color: #666;
+
+        .dot {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          font-weight: 700;
+          font-size: 12px;
+        }
+
+        &.safe {
+          color: #00e676;
+
+          .dot {
+            background: rgba(0, 230, 118, 0.2);
+            color: #00e676;
+          }
+        }
+
+        &.warning {
+          color: #ff9800;
+
+          .dot {
+            background: rgba(255, 152, 0, 0.2);
+            color: #ff9800;
+          }
+        }
+      }
+    }
+  }
+}
+
+// ========== TRANSACTIONS SECTION ==========
+.transactions-section {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  padding: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 8px 32px rgba(107, 99, 255, 0.1);
+  margin-bottom: 40px;
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+
+    h2 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #0f0f1e;
+      margin: 0;
+    }
+
+    .transaction-count {
+      font-size: 13px;
+      color: #999;
+      background: rgba(107, 99, 255, 0.05);
+      padding: 6px 12px;
+      border-radius: 20px;
+    }
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #999;
+    font-size: 14px;
+  }
+}
+
+.transactions-group {
+  margin-bottom: 28px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  .group-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #666;
+    margin: 0 0 12px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+.transactions-table {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.transaction-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px;
+  background: #fafafa;
+  border-radius: 12px;
+  border-left: 4px solid #ddd;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: #f5f5f5;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  &.suspect {
+    border-left-color: #ff4d4d;
+    background: rgba(255, 77, 77, 0.05);
+
+    &:hover {
+      background: rgba(255, 77, 77, 0.08);
+      border-left-color: #ff6b6b;
+    }
+  }
+
+  &.verified {
+    border-left-color: #00e676;
+    background: rgba(0, 230, 118, 0.05);
+
+    &:hover {
+      background: rgba(0, 230, 118, 0.08);
+    }
+  }
+
+  &.blocked {
+    border-left-color: #d32f2f;
+    background: rgba(211, 47, 47, 0.08);
+
+    &:hover {
+      background: rgba(211, 47, 47, 0.12);
+      border-left-color: #ef5350;
+    }
+  }
+
+  .transaction-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    &.merchant {
+      flex: 1.5;
+      min-width: 200px;
+
+      .merchant-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+
+        .merchant-name {
+          font-size: 14px;
+          font-weight: 600;
+          color: #0f0f1e;
+        }
+
+        .merchant-location {
+          font-size: 12px;
+          color: #999;
+        }
+      }
+    }
+
+    &.amount {
+      flex: 0 0 140px;
+      text-align: right;
+
+      .amount-value {
+        display: block;
+        font-size: 15px;
+        font-weight: 600;
+        color: #0f0f1e;
+      }
+
+      .transaction-time {
+        display: block;
+        font-size: 11px;
+        color: #999;
+        margin-top: 2px;
+      }
+    }
+
+    &.category {
+      flex: 0 0 100px;
+
+      .badge {
+        display: inline-block;
+        background: rgba(107, 99, 255, 0.1);
+        color: #6c63ff;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: capitalize;
+      }
+    }
+
+    &.actions {
+      flex: 0 0 auto;
+      gap: 8px;
+
+      .action-btn {
+        padding: 8px 12px;
+        border: none;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
+
+        &.confirm-btn {
+          background: rgba(0, 230, 118, 0.2);
+          color: #00e676;
+          border: 1px solid rgba(0, 230, 118, 0.4);
+
+          &:hover {
+            background: rgba(0, 230, 118, 0.3);
+            transform: translateY(-1px);
+          }
+        }
+
+        &.report-btn {
+          background: rgba(255, 77, 77, 0.2);
+          color: #ff4d4d;
+          border: 1px solid rgba(255, 77, 77, 0.4);
+
+          &:hover {
+            background: rgba(255, 77, 77, 0.3);
+            transform: translateY(-1px);
+          }
+        }
+      }
+    }
+
+    &.status {
+      flex: 0 0 100px;
+
+      .status-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+
+        &.verified {
+          background: rgba(0, 230, 118, 0.2);
+          color: #00e676;
+        }
+
+        &.blocked {
+          background: rgba(211, 47, 47, 0.16);
+          color: #b71c1c;
+        }
+      }
+
+      .policy-text-inline {
+        margin-top: 6px;
+        display: inline-block;
+        font-size: 11px;
+        color: #6b7280;
+      }
+
+      .trust-merchant-btn {
+        margin-top: 8px;
+        border: 1px solid rgba(67, 56, 202, 0.35);
+        background: rgba(67, 56, 202, 0.08);
+        color: #4338ca;
+        border-radius: 8px;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 6px 10px;
+        cursor: pointer;
+      }
+
+      .trusted-pill {
+        margin-top: 8px;
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 700;
+        color: #2e7d32;
+        background: rgba(46, 125, 50, 0.12);
+        border: 1px solid rgba(46, 125, 50, 0.25);
+        border-radius: 8px;
+        padding: 5px 9px;
+      }
+    }
+  }
+}
+
+.merchant-vault-section {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  padding: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 8px 32px rgba(107, 99, 255, 0.1);
+  margin-bottom: 40px;
+}
+
+.merchant-vault-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.trusted-merchants-column {
+  background: rgba(107, 99, 255, 0.05);
+  border: 1px solid rgba(107, 99, 255, 0.15);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.trusted-merchants {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.trusted-merchant-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  border: 1px solid rgba(107, 99, 255, 0.15);
+  border-radius: 10px;
+  padding: 10px 12px;
+
+  .merchant-name {
+    font-size: 13px;
+    color: #4338ca;
+    font-weight: 700;
+  }
+}
+
+.remove-merchant-btn {
+  border: 1px solid rgba(255, 77, 77, 0.35);
+  background: rgba(255, 77, 77, 0.12);
+  color: #c62828;
+  border-radius: 8px;
+  padding: 5px 9px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.merchant-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.trust-suggestion-btn {
+  border: 1px solid rgba(46, 125, 50, 0.35);
+  background: rgba(46, 125, 50, 0.1);
+  color: #2e7d32;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.empty-state.compact {
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px dashed rgba(107, 99, 255, 0.2);
+  border-radius: 10px;
+}
+
+// ========== TRAVEL MODE SECTION ==========
+.travel-mode-section {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  padding: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 8px 32px rgba(107, 99, 255, 0.1);
+  margin-bottom: 40px;
+
+  .section-header {
+    margin-bottom: 24px;
+
+    h2 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #0f0f1e;
+      margin: 0 0 8px 0;
+    }
+
+    .section-subtitle {
+      font-size: 13px;
+      color: #999;
+      margin: 0;
+    }
+  }
+
+  .travel-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .whitelisted-countries,
+  .add-countries {
+    h3 {
+      font-size: 13px;
+      font-weight: 600;
+      color: #666;
+      margin: 0 0 12px 0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  }
+
+  .country-flags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+
+    .country-flag {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, rgba(107, 99, 255, 0.1) 0%, rgba(107, 99, 255, 0.05) 100%);
+      border: 2px solid rgba(107, 99, 255, 0.2);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &:hover {
+        border-color: rgba(107, 99, 255, 0.5);
+        background: linear-gradient(135deg, rgba(107, 99, 255, 0.15) 0%, rgba(107, 99, 255, 0.1) 100%);
+
+        .remove-country-btn {
+          opacity: 1;
+        }
+      }
+
+      .flag-emoji {
+        font-size: 28px;
+      }
+
+      .remove-country-btn {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: #ff4d4d;
+        color: white;
+        border: none;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        opacity: 0;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &:hover {
+          background: #ff6b6b;
+          transform: scale(1.1);
+        }
+      }
+    }
+  }
+
+  .add-country-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .country-add-btn {
+    padding: 10px 16px;
+    background: rgba(107, 99, 255, 0.1);
+    color: #6c63ff;
+    border: 1px solid rgba(107, 99, 255, 0.3);
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover:not(.disabled) {
+      background: rgba(107, 99, 255, 0.2);
+      border-color: rgba(107, 99, 255, 0.5);
+      transform: translateY(-2px);
+    }
+
+    &.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}
+
+// ========== REPORT FEEDBACK ==========
+.report-feedback {
+  margin-bottom: 20px;
+
+  .success-message,
+  .error-message {
+    display: flex;
+    gap: 12px;
+    padding: 16px;
+    border-radius: 12px;
+    animation: slideInUp 0.4s ease-out;
+
+    .success-icon,
+    .error-icon {
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    h4 {
+      font-size: 14px;
+      font-weight: 600;
+      margin: 0 0 4px 0;
+    }
+
+    p {
+      font-size: 13px;
+      margin: 0;
+      color: inherit;
+      opacity: 0.85;
+    }
+  }
+
+  .success-message {
+    background: rgba(0, 230, 118, 0.1);
+    color: #00e676;
+    border-left: 4px solid #00e676;
+  }
+
+  .error-message {
+    background: rgba(255, 77, 77, 0.1);
+    color: #ff4d4d;
+    border-left: 4px solid #ff4d4d;
+  }
+}
+
+// ========== ANIMATIONS ==========
+@keyframes pulse-badge {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+// ========== RESPONSIVE DESIGN ==========
+@media (max-width: 1024px) {
+  .top-row {
+    flex-direction: column;
+  }
+
+  .transaction-row {
+    flex-wrap: wrap;
+
+    .transaction-cell {
+      &.merchant {
+        flex: 1 0 100%;
+      }
+
+      &.amount {
+        flex: 1 0 50%;
+      }
+
+      &.category {
+        flex: 1 0 50%;
+      }
+
+      &.actions {
+        flex: 1 0 100%;
+        margin-top: 8px;
+      }
+
+      &.status {
+        flex: 1 0 100%;
+        margin-top: 8px;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .client-hub-container {
+    padding: 16px;
+  }
+
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+
+    .header-left {
+      min-width: auto;
+    }
+
+    .greeting {
+      font-size: 24px;
+    }
+  }
+
+  .credit-card-section {
+    max-width: 100%;
+  }
+
+  .transaction-row {
+    .transaction-cell {
+      &.actions {
+        .action-btn {
+          padding: 6px 10px;
+          font-size: 11px;
+        }
+      }
+    }
+  }
+}
+
+.open-cases-chip {
+  padding: 8px 14px;
+  border-radius: 18px;
+  background: rgba(255, 77, 77, 0.12);
+  border: 1px solid rgba(255, 77, 77, 0.35);
+  color: #c62828;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.card-security-actions {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  .freeze-toggle {
+    border: 1px solid rgba(107, 99, 255, 0.4);
+    background: rgba(107, 99, 255, 0.08);
+    color: #4338ca;
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .freeze-state {
+    font-size: 12px;
+    font-weight: 600;
+
+    &.frozen {
+      color: #d32f2f;
+    }
+
+    &.active {
+      color: #2e7d32;
+    }
+  }
+}
+
+.transaction-row.pending {
+  border-left-color: #ff9800;
+  background: rgba(255, 152, 0, 0.08);
+}
+
+.status-badge.pending {
+  background: rgba(255, 152, 0, 0.2);
+  color: #ef6c00;
+}
+
+.status-badge.blocked {
+  background: rgba(211, 47, 47, 0.16);
+  color: #b71c1c;
+}
+
+.case-tracker {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 8px 24px rgba(107, 99, 255, 0.1);
+  margin-bottom: 20px;
+
+  .case-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .case-row {
+    display: grid;
+    grid-template-columns: 140px 1fr 140px;
+    gap: 12px;
+    background: rgba(107, 99, 255, 0.06);
+    border-radius: 10px;
+    padding: 10px 12px;
+    align-items: center;
+
+    &.selectable {
+      cursor: pointer;
+      transition: all 0.25s ease;
+
+      &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 16px rgba(67, 56, 202, 0.12);
+      }
+
+      &.active {
+        border: 1px solid rgba(67, 56, 202, 0.35);
+        background: rgba(67, 56, 202, 0.12);
+      }
+    }
+  }
+
+  .case-id {
+    font-size: 12px;
+    font-weight: 700;
+    color: #4338ca;
+  }
+
+  .case-summary {
+    font-size: 12px;
+    color: #4b5563;
+  }
+
+  .case-status {
+    justify-self: end;
+    font-size: 11px;
+    font-weight: 700;
+    color: #ef6c00;
+
+    &.status-resolved {
+      color: #2e7d32;
+    }
+
+    &.status-investigating,
+    &.status-triage {
+      color: #ef6c00;
+    }
+
+    &.status-escalated {
+      color: #c62828;
+    }
+  }
+
+  .case-timeline {
+    margin-top: 16px;
+    border-top: 1px dashed rgba(107, 99, 255, 0.25);
+    padding-top: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .timeline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    h3 {
+      margin: 0;
+      font-size: 14px;
+      color: #1f2937;
+    }
+
+    .timeline-priority {
+      font-size: 11px;
+      font-weight: 700;
+      color: #6c63ff;
+      background: rgba(107, 99, 255, 0.1);
+      border: 1px solid rgba(107, 99, 255, 0.25);
+      border-radius: 999px;
+      padding: 4px 9px;
+    }
+  }
+
+  .timeline-codes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .reason-code {
+    font-size: 10px;
+    font-weight: 700;
+    color: #b71c1c;
+    border: 1px solid rgba(183, 28, 28, 0.25);
+    background: rgba(183, 28, 28, 0.08);
+    border-radius: 999px;
+    padding: 3px 8px;
+    letter-spacing: 0.3px;
+  }
+
+  .timeline-event {
+    display: grid;
+    grid-template-columns: 20px 1fr;
+    gap: 8px;
+    align-items: start;
+  }
+
+  .timeline-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-top: 6px;
+    background: #6c63ff;
+    box-shadow: 0 0 0 3px rgba(107, 99, 255, 0.2);
+  }
+
+  .timeline-content {
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(107, 99, 255, 0.15);
+    border-radius: 10px;
+    padding: 9px 10px;
+  }
+
+  .timeline-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+
+    .timeline-action {
+      font-size: 12px;
+      font-weight: 700;
+      color: #1f2937;
+    }
+
+    .timeline-time {
+      font-size: 10px;
+      color: #6b7280;
+      white-space: nowrap;
+    }
+  }
+
+  .timeline-meta {
+    font-size: 11px;
+    color: #4b5563;
+    margin-top: 3px;
+  }
+
+  .timeline-note {
+    margin-top: 5px;
+    font-size: 11px;
+    color: #6b7280;
+  }
+}
+
+/* Theme harmonization: force fully dark UI in dark mode and high-contrast text in light mode. */
+:host-context(:root[data-theme='dark']) .client-hub-container {
+  color: #e8eeff;
+}
+
+:host-context(:root[data-theme='dark']) .card-balance,
+:host-context(:root[data-theme='dark']) .trust-score-section,
+:host-context(:root[data-theme='dark']) .transactions-section,
+:host-context(:root[data-theme='dark']) .merchant-vault-section,
+:host-context(:root[data-theme='dark']) .travel-mode-section,
+:host-context(:root[data-theme='dark']) .case-tracker {
+  background: linear-gradient(150deg, rgba(18, 24, 45, 0.94), rgba(23, 31, 56, 0.92));
+  border-color: rgba(135, 152, 230, 0.26);
+  box-shadow: 0 12px 30px rgba(5, 9, 24, 0.36);
+}
+
+:host-context(:root[data-theme='dark']) .transaction-row,
+:host-context(:root[data-theme='dark']) .trusted-merchant-item,
+:host-context(:root[data-theme='dark']) .empty-state.compact,
+:host-context(:root[data-theme='dark']) .case-tracker .timeline-content {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(145, 158, 236, 0.22);
+}
+
+:host-context(:root[data-theme='dark']) .transaction-row:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+:host-context(:root[data-theme='dark']) .transaction-row .merchant-name,
+:host-context(:root[data-theme='dark']) .transaction-row .amount-value,
+:host-context(:root[data-theme='dark']) .section-title,
+:host-context(:root[data-theme='dark']) .transactions-section .section-header h2,
+:host-context(:root[data-theme='dark']) .merchant-vault-section .section-header h2,
+:host-context(:root[data-theme='dark']) .travel-mode-section .section-header h2,
+:host-context(:root[data-theme='dark']) .case-tracker .timeline-main .timeline-action,
+:host-context(:root[data-theme='dark']) .case-tracker .timeline-header h3 {
+  color: #eef3ff;
+}
+
+:host-context(:root[data-theme='dark']) .dashboard-header .subtitle,
+:host-context(:root[data-theme='dark']) .transactions-group .group-title,
+:host-context(:root[data-theme='dark']) .transaction-row .merchant-location,
+:host-context(:root[data-theme='dark']) .transaction-row .transaction-time,
+:host-context(:root[data-theme='dark']) .transaction-count,
+:host-context(:root[data-theme='dark']) .section-subtitle,
+:host-context(:root[data-theme='dark']) .empty-state,
+:host-context(:root[data-theme='dark']) .case-summary,
+:host-context(:root[data-theme='dark']) .timeline-meta,
+:host-context(:root[data-theme='dark']) .timeline-note,
+:host-context(:root[data-theme='dark']) .balance-label {
+  color: #a9b4d7;
+}
+
+:host-context(:root[data-theme='dark']) .notification-bell {
+  background: rgba(20, 27, 50, 0.84);
+  border-color: rgba(150, 164, 255, 0.34);
+}
+
+:host-context(:root[data-theme='dark']) .notification-bell:hover {
+  background: rgba(27, 35, 64, 0.95);
+}
+
+:host-context(:root[data-theme='light']) .client-hub-container {
+  color: #1b2948;
+}
+
+:host-context(:root[data-theme='light']) .card-balance,
+:host-context(:root[data-theme='light']) .trust-score-section,
+:host-context(:root[data-theme='light']) .transactions-section,
+:host-context(:root[data-theme='light']) .merchant-vault-section,
+:host-context(:root[data-theme='light']) .travel-mode-section,
+:host-context(:root[data-theme='light']) .case-tracker {
+  background: linear-gradient(152deg, rgba(255, 255, 255, 0.96), rgba(245, 249, 255, 0.92));
+  border-color: rgba(106, 124, 179, 0.26);
+  box-shadow: 0 12px 28px rgba(40, 58, 104, 0.12);
+}
+
+:host-context(:root[data-theme='light']) .transaction-row,
+:host-context(:root[data-theme='light']) .trusted-merchant-item,
+:host-context(:root[data-theme='light']) .empty-state.compact,
+:host-context(:root[data-theme='light']) .case-tracker .timeline-content {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(106, 124, 179, 0.22);
+}
+
+:host-context(:root[data-theme='light']) .transaction-row:hover {
+  background: #f4f7ff;
+}
+
+:host-context(:root[data-theme='light']) .greeting,
+:host-context(:root[data-theme='light']) .section-title,
+:host-context(:root[data-theme='light']) .transactions-section .section-header h2,
+:host-context(:root[data-theme='light']) .merchant-vault-section .section-header h2,
+:host-context(:root[data-theme='light']) .travel-mode-section .section-header h2,
+:host-context(:root[data-theme='light']) .transaction-row .merchant-name,
+:host-context(:root[data-theme='light']) .transaction-row .amount-value,
+:host-context(:root[data-theme='light']) .case-tracker .timeline-main .timeline-action,
+:host-context(:root[data-theme='light']) .case-tracker .timeline-header h3 {
+  color: #1b2948;
+}
+

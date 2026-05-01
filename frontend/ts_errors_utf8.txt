@@ -1,0 +1,53 @@
+﻿INTEGRATION_EXAMPLES.ts(9,10): error TS2300: Duplicate identifier 'Component'.
+INTEGRATION_EXAMPLES.ts(9,21): error TS2300: Duplicate identifier 'OnInit'.
+INTEGRATION_EXAMPLES.ts(10,10): error TS2300: Duplicate identifier 'CommonModule'.
+INTEGRATION_EXAMPLES.ts(25,14): error TS2300: Duplicate identifier 'HeroComponent'.
+INTEGRATION_EXAMPLES.ts(25,14): error TS2395: Individual declarations in merged declaration 'HeroComponent' must be all exported or all local.
+INTEGRATION_EXAMPLES.ts(70,10): error TS2300: Duplicate identifier 'HeroComponent'.
+INTEGRATION_EXAMPLES.ts(70,10): error TS2395: Individual declarations in merged declaration 'HeroComponent' must be all exported or all local.
+INTEGRATION_EXAMPLES.ts(70,31): error TS2307: Cannot find module './components/hero/hero.component' or its corresponding type declarations.
+INTEGRATION_EXAMPLES.ts(72,14): error TS2395: Individual declarations in merged declaration 'routes' must be all exported or all local.
+INTEGRATION_EXAMPLES.ts(75,16): error TS2449: Class 'HeroComponent' used before its declaration.
+INTEGRATION_EXAMPLES.ts(80,33): error TS2307: Cannot find module './components/dashboard/dashboard.component' or its corresponding type declarations.
+INTEGRATION_EXAMPLES.ts(84,33): error TS2307: Cannot find module './components/features/features.component' or its corresponding type declarations.
+INTEGRATION_EXAMPLES.ts(88,33): error TS2307: Cannot find module './components/pricing/pricing.component' or its corresponding type declarations.
+INTEGRATION_EXAMPLES.ts(92,33): error TS2307: Cannot find module './components/contact/contact.component' or its corresponding type declarations.
+INTEGRATION_EXAMPLES.ts(106,10): error TS2395: Individual declarations in merged declaration 'AppComponent' must be all exported or all local.
+INTEGRATION_EXAMPLES.ts(106,30): error TS2307: Cannot find module './app/app.component' or its corresponding type declarations.
+INTEGRATION_EXAMPLES.ts(107,10): error TS2395: Individual declarations in merged declaration 'routes' must be all exported or all local.
+INTEGRATION_EXAMPLES.ts(107,24): error TS2307: Cannot find module './app/app.routes' or its corresponding type declarations.
+INTEGRATION_EXAMPLES.ts(110,22): error TS2449: Class 'AppComponent' used before its declaration.
+INTEGRATION_EXAMPLES.ts(118,10): error TS2300: Duplicate identifier 'Component'.
+INTEGRATION_EXAMPLES.ts(119,10): error TS2300: Duplicate identifier 'RouterOutlet'.
+INTEGRATION_EXAMPLES.ts(134,14): error TS2395: Individual declarations in merged declaration 'AppComponent' must be all exported or all local.
+INTEGRATION_EXAMPLES.ts(142,10): error TS2300: Duplicate identifier 'Component'.
+INTEGRATION_EXAMPLES.ts(143,10): error TS2300: Duplicate identifier 'RouterOutlet'.
+INTEGRATION_EXAMPLES.ts(174,10): error TS2300: Duplicate identifier 'Component'.
+INTEGRATION_EXAMPLES.ts(174,21): error TS2300: Duplicate identifier 'OnInit'.
+INTEGRATION_EXAMPLES.ts(175,10): error TS2300: Duplicate identifier 'CommonModule'.
+INTEGRATION_EXAMPLES.ts(191,14): error TS2300: Duplicate identifier 'HeroComponent'.
+INTEGRATION_EXAMPLES.ts(191,14): error TS2395: Individual declarations in merged declaration 'HeroComponent' must be all exported or all local.
+INTEGRATION_EXAMPLES.ts(233,10): error TS2300: Duplicate identifier 'Injectable'.
+INTEGRATION_EXAMPLES.ts(234,27): error TS2300: Duplicate identifier 'Observable'.
+INTEGRATION_EXAMPLES.ts(290,10): error TS2300: Duplicate identifier 'Injectable'.
+INTEGRATION_EXAMPLES.ts(292,10): error TS2300: Duplicate identifier 'Observable'.
+INTEGRATION_EXAMPLES.ts(305,14): error TS2300: Duplicate identifier 'LandingPageService'.
+INTEGRATION_EXAMPLES.ts(305,14): error TS2395: Individual declarations in merged declaration 'LandingPageService' must be all exported or all local.
+INTEGRATION_EXAMPLES.ts(326,10): error TS2300: Duplicate identifier 'Component'.
+INTEGRATION_EXAMPLES.ts(326,21): error TS2300: Duplicate identifier 'OnInit'.
+INTEGRATION_EXAMPLES.ts(327,10): error TS2300: Duplicate identifier 'CommonModule'.
+INTEGRATION_EXAMPLES.ts(328,10): error TS2300: Duplicate identifier 'LandingPageService'.
+INTEGRATION_EXAMPLES.ts(328,10): error TS2395: Individual declarations in merged declaration 'LandingPageService' must be all exported or all local.
+INTEGRATION_EXAMPLES.ts(328,36): error TS2307: Cannot find module './services/landing-page.service' or its corresponding type declarations.
+INTEGRATION_EXAMPLES.ts(337,14): error TS2300: Duplicate identifier 'HeroComponent'.
+INTEGRATION_EXAMPLES.ts(337,14): error TS2395: Individual declarations in merged declaration 'HeroComponent' must be all exported or all local.
+INTEGRATION_EXAMPLES.ts(356,14): error TS7006: Parameter 'data' implicitly has an 'any' type.
+INTEGRATION_EXAMPLES.ts(361,15): error TS7006: Parameter 'error' implicitly has an 'any' type.
+INTEGRATION_EXAMPLES.ts(381,15): error TS7006: Parameter 'error' implicitly has an 'any' type.
+INTEGRATION_EXAMPLES.ts(421,14): error TS2451: Cannot redeclare block-scoped variable 'environment'.
+INTEGRATION_EXAMPLES.ts(431,14): error TS2451: Cannot redeclare block-scoped variable 'environment'.
+INTEGRATION_EXAMPLES.ts(454,10): error TS2300: Duplicate identifier 'HeroComponent'.
+INTEGRATION_EXAMPLES.ts(454,31): error TS2307: Cannot find module './hero.component' or its corresponding type declarations.
+INTEGRATION_EXAMPLES.ts(455,10): error TS2300: Duplicate identifier 'LandingPageService'.
+INTEGRATION_EXAMPLES.ts(455,36): error TS2307: Cannot find module './services/landing-page.service' or its corresponding type declarations.
+src/app/components/hero/hero.module.ts(7,31): error TS2307: Cannot find module './components/hero/hero.component' or its corresponding type declarations.

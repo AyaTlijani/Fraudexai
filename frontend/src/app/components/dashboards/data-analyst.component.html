@@ -1,0 +1,709 @@
+<div class="analyst-shell">
+
+  <!-- ══════════ TOP BAR ══════════ -->
+  <header class="top-bar">
+    <div class="top-bar-inner">
+      <div class="brand">
+        <span class="brand-icon">🔬</span>
+        <div>
+          <h1 class="brand-title">DATA ANALYST LABORATORY</h1>
+          <p class="brand-sub">FraudExia · Credit Card Fraud Detection · ML Pipeline Report</p>
+        </div>
+      </div>
+      <div class="top-badges">
+        <span class="badge badge-green">283 726 transactions</span>
+        <span class="badge badge-red">473 fraudes · 0.17%</span>
+        <span class="badge badge-cyan">3 modèles comparés</span>
+      </div>
+      <button class="back-btn" (click)="goBack()">← Dashboard</button>
+    </div>
+  </header>
+
+  <!-- ══════════ TAB NAV ══════════ -->
+  <nav class="tab-nav">
+    <button class="tab-btn" [class.active]="activeTab==='dataset'"      (click)="setTab('dataset')">
+      <span>📦</span> Dataset
+    </button>
+    <button class="tab-btn" [class.active]="activeTab==='eda'"          (click)="setTab('eda')">
+      <span>🔍</span> EDA
+    </button>
+    <button class="tab-btn" [class.active]="activeTab==='models'"       (click)="setTab('models')">
+      <span>🤖</span> Modèles
+    </button>
+    <button class="tab-btn" [class.active]="activeTab==='improvements'" (click)="setTab('improvements')">
+      <span>🚀</span> Améliorations
+    </button>
+  </nav>
+
+  <!-- ══════════ CONTENT ══════════ -->
+  <main class="content">
+
+    <!-- ╔══════════════════════════════╗
+         ║   ONGLET 1 — DATASET        ║
+         ╚══════════════════════════════╝ -->
+    <ng-container *ngIf="activeTab === 'dataset'">
+
+      <!-- Row 1 : KPI cards -->
+      <div class="kpi-row">
+        <div class="kpi-card">
+          <div class="kpi-icon">📊</div>
+          <div class="kpi-value cyan">284 807</div>
+          <div class="kpi-label">Transactions brutes</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon">🧹</div>
+          <div class="kpi-value purple">283 726</div>
+          <div class="kpi-label">Après nettoyage</div>
+          <div class="kpi-sub">−1 081 doublons</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon">🗂️</div>
+          <div class="kpi-value cyan">31</div>
+          <div class="kpi-label">Colonnes</div>
+          <div class="kpi-sub">Time · V1–V28 · Amount · Class</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon">✅</div>
+          <div class="kpi-value green">0</div>
+          <div class="kpi-label">Valeurs manquantes</div>
+        </div>
+        <div class="kpi-card danger">
+          <div class="kpi-icon">🚨</div>
+          <div class="kpi-value red">0.1667%</div>
+          <div class="kpi-label">Taux de fraude</div>
+          <div class="kpi-sub">1 fraude / 599 légitimes</div>
+        </div>
+      </div>
+
+      <!-- Row 2 : Distribution + Stats -->
+      <div class="two-col">
+
+        <!-- Class distribution chart -->
+        <div class="glass-card">
+          <h3 class="card-title">Distribution de la variable cible — <span class="cyan">Class</span></h3>
+
+          <div class="dist-bars">
+            <div class="dist-row">
+              <span class="dist-label">Légitime (0)</span>
+              <div class="dist-track">
+                <div class="dist-fill legitfill" style="width: 99.83%"></div>
+              </div>
+              <span class="dist-pct cyan">99.83%</span>
+              <span class="dist-count">283 253</span>
+            </div>
+            <div class="dist-row">
+              <span class="dist-label">Fraude (1)</span>
+              <div class="dist-track">
+                <div class="dist-fill fraudfill" style="width: 0.6%"></div>
+              </div>
+              <span class="dist-pct red">0.17%</span>
+              <span class="dist-count">473</span>
+            </div>
+          </div>
+
+          <!-- Visual imbalance indicator -->
+          <div class="imbalance-box">
+            <div class="imbalance-inner">
+              <span class="imbalance-label">⚠️ DÉSÉQUILIBRE EXTRÊME</span>
+              <span class="imbalance-ratio">Ratio 1 : 599</span>
+            </div>
+            <p class="imbalance-note">
+              Un modèle naïf prédisant toujours "Légitime" aurait 99.83% d'accuracy
+              sans jamais détecter une fraude. <strong>Recall, F1, AUC-ROC</strong> sont les métriques pertinentes.
+            </p>
+          </div>
+
+          <!-- Pie donut SVG -->
+          <div class="donut-wrapper">
+            <svg viewBox="0 0 200 200" class="donut-svg">
+              <circle cx="100" cy="100" r="80" fill="none" stroke="#1a2a4a" stroke-width="28"/>
+              <!-- Legit arc (quasi-full) -->
+              <circle cx="100" cy="100" r="80" fill="none" stroke="#00d9ff" stroke-width="28"
+                stroke-dasharray="499.5 2.6" stroke-dashoffset="-0"
+                transform="rotate(-90 100 100)" opacity="0.6"/>
+              <!-- Fraud arc -->
+              <circle cx="100" cy="100" r="80" fill="none" stroke="#ff0055" stroke-width="28"
+                stroke-dasharray="2.6 499.5"
+                transform="rotate(-90 100 100)"/>
+              <text x="100" y="95" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">473</text>
+              <text x="100" y="112" text-anchor="middle" fill="#ff0055" font-size="10">fraudes</text>
+            </svg>
+            <div class="donut-legend">
+              <span class="legend-dot cyan-dot"></span><span>Légitime 99.83%</span><br>
+              <span class="legend-dot red-dot"></span><span>Fraude 0.17%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Descriptive stats table -->
+        <div class="glass-card">
+          <h3 class="card-title">Statistiques descriptives — Variables clés</h3>
+          <div class="table-wrap">
+            <table class="stats-table">
+              <thead>
+                <tr><th>Stat</th><th>Time (s)</th><th>Amount (€)</th><th>Class</th></tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let row of descriptiveStats" [class.highlight]="row.stat === 'mean' || row.stat === 'max'">
+                  <td class="stat-name">{{ row.stat }}</td>
+                  <td>{{ row.time }}</td>
+                  <td>{{ row.amount }}</td>
+                  <td>{{ row.cls }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Montant comparaison -->
+          <div class="amount-compare">
+            <h4 class="compare-title">💶 Montant moyen : Fraude vs Légitime</h4>
+            <div class="compare-bars">
+              <div class="cbar-row">
+                <span class="cbar-lbl fraud">Fraude 🔴</span>
+                <div class="cbar-track">
+                  <div class="cbar-fill red-fill" style="width: 44%"></div>
+                </div>
+                <span class="cbar-val">123.87 €</span>
+              </div>
+              <div class="cbar-row">
+                <span class="cbar-lbl legit">Légit. 🟢</span>
+                <div class="cbar-track">
+                  <div class="cbar-fill cyan-fill" style="width: 31%"></div>
+                </div>
+                <span class="cbar-val">88.41 €</span>
+              </div>
+            </div>
+            <p class="compare-note">Les fraudes ont un montant moyen <strong>40% supérieur</strong> aux transactions légitimes.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pipeline preprocessing -->
+      <div class="glass-card pipeline-card">
+        <h3 class="card-title">🔧 Pipeline de Preprocessing</h3>
+        <div class="pipeline-steps">
+          <div class="pipe-step">
+            <div class="pipe-num">1</div>
+            <div class="pipe-content">
+              <strong>Suppression des doublons</strong>
+              <span>284 807 → 283 726 lignes (−1 081)</span>
+            </div>
+          </div>
+          <div class="pipe-arrow">→</div>
+          <div class="pipe-step">
+            <div class="pipe-num">2</div>
+            <div class="pipe-content">
+              <strong>Vérification missing</strong>
+              <span>Aucune action requise ✅</span>
+            </div>
+          </div>
+          <div class="pipe-arrow">→</div>
+          <div class="pipe-step">
+            <div class="pipe-num">3</div>
+            <div class="pipe-content">
+              <strong>StandardScaler</strong>
+              <span>Time & Amount normalisés</span>
+            </div>
+          </div>
+          <div class="pipe-arrow">→</div>
+          <div class="pipe-step">
+            <div class="pipe-num">4</div>
+            <div class="pipe-content">
+              <strong>Split 80/20 stratifié</strong>
+              <span>226 980 train / 56 746 test</span>
+            </div>
+          </div>
+          <div class="pipe-arrow">→</div>
+          <div class="pipe-step highlight-step">
+            <div class="pipe-num red-num">5</div>
+            <div class="pipe-content">
+              <strong>SMOTE (train only)</strong>
+              <span>378 → 226 602 fraudes synthétiques</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </ng-container>
+
+    <!-- ╔══════════════════════════════╗
+         ║   ONGLET 2 — EDA            ║
+         ╚══════════════════════════════╝ -->
+    <ng-container *ngIf="activeTab === 'eda'">
+
+      <div class="two-col">
+
+        <!-- Feature correlation chart -->
+        <div class="glass-card">
+          <h3 class="card-title">🎯 Corrélation Features ↔ Fraude (|corr|)</h3>
+          <p class="card-note">Top 15 features les plus discriminantes pour la détection de fraude</p>
+
+          <div class="corr-chart">
+            <div class="corr-row" *ngFor="let f of featureCorrelations; let i = index">
+              <span class="corr-name" [class.top3]="i < 3">{{ f.name }}</span>
+              <div class="corr-track">
+                <div class="corr-bar"
+                     [style.width.%]="corrBarWidth(f.value)"
+                     [style.background]="i < 3 ? 'linear-gradient(90deg,#ff0055,#ff6699)' :
+                                          i < 7 ? 'linear-gradient(90deg,#ffa500,#ffcc44)' :
+                                                  'linear-gradient(90deg,#6c63ff,#00d9ff)'">
+                </div>
+              </div>
+              <span class="corr-val" [class.top3]="i < 3">{{ f.value.toFixed(4) }}</span>
+            </div>
+          </div>
+
+          <div class="corr-legend">
+            <span class="leg-item"><span class="leg-dot" style="background:#ff0055"></span>Signal fort</span>
+            <span class="leg-item"><span class="leg-dot" style="background:#ffa500"></span>Signal modéré</span>
+            <span class="leg-item"><span class="leg-dot" style="background:#6c63ff"></span>Signal faible</span>
+          </div>
+        </div>
+
+        <!-- Amount analysis -->
+        <div class="glass-card">
+          <h3 class="card-title">💶 Analyse des Montants — Fraude vs Légitime</h3>
+
+          <div class="amount-cards">
+            <div class="am-card red-card">
+              <div class="am-icon">🔴</div>
+              <div class="am-title">Fraudes</div>
+              <div class="am-stat"><span class="am-label">Moyenne</span><span class="am-val red">123.87 €</span></div>
+              <div class="am-stat"><span class="am-label">Médiane</span><span class="am-val">~22 €</span></div>
+              <div class="am-stat"><span class="am-label">Maximum</span><span class="am-val red">2 125.87 €</span></div>
+              <div class="am-stat"><span class="am-label">Minimum</span><span class="am-val">0 €</span></div>
+            </div>
+            <div class="am-card cyan-card">
+              <div class="am-icon">🟢</div>
+              <div class="am-title">Légitimes</div>
+              <div class="am-stat"><span class="am-label">Moyenne</span><span class="am-val cyan">88.41 €</span></div>
+              <div class="am-stat"><span class="am-label">Médiane</span><span class="am-val">~22 €</span></div>
+              <div class="am-stat"><span class="am-label">Maximum</span><span class="am-val cyan">25 691.16 €</span></div>
+              <div class="am-stat"><span class="am-label">Minimum</span><span class="am-val">0 €</span></div>
+            </div>
+          </div>
+
+          <!-- SVG Distribution comparison -->
+          <h4 class="sub-title">Distribution comparative (schématique)</h4>
+          <svg viewBox="0 0 400 140" class="dist-svg">
+            <!-- Axe -->
+            <line x1="30" y1="120" x2="390" y2="120" stroke="#334" stroke-width="1"/>
+            <!-- Légit distribution (approx log-normal) -->
+            <path d="M30,120 Q60,115 80,80 Q100,40 120,20 Q140,10 160,18 Q180,30 200,50 Q240,90 280,112 Q320,119 390,120"
+                  fill="rgba(0,217,255,0.2)" stroke="#00d9ff" stroke-width="1.5"/>
+            <!-- Fraud distribution -->
+            <path d="M30,120 Q70,118 100,100 Q130,70 160,40 Q180,25 200,30 Q220,40 240,70 Q260,95 290,115 Q330,120 390,120"
+                  fill="rgba(255,0,85,0.2)" stroke="#ff0055" stroke-width="1.5"/>
+            <!-- Labels -->
+            <text x="120" y="12" fill="#00d9ff" font-size="9">Légitimes</text>
+            <text x="170" y="22" fill="#ff0055" font-size="9">Fraudes</text>
+            <text x="30" y="133" fill="#556" font-size="8">0 €</text>
+            <text x="180" y="133" fill="#556" font-size="8">500 €</text>
+            <text x="360" y="133" fill="#556" font-size="8">1000 €+</text>
+          </svg>
+
+          <div class="insight-box">
+            <span class="insight-icon">💡</span>
+            <p>Les très grandes transactions (&gt;5 000 €) sont <strong>rarement frauduleuses</strong>.
+            Les fraudeurs évitent les montants qui déclenchent des alertes manuelles.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top 3 features deep dive -->
+      <div class="glass-card">
+        <h3 class="card-title">🏆 Top 3 Features — Analyse Détaillée</h3>
+        <div class="top3-grid">
+          <div class="top3-card" *ngFor="let f of featureCorrelations.slice(0,3); let i = index">
+            <div class="rank-badge">
+              {{ i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉' }}
+            </div>
+            <h4 class="feat-name">{{ f.name }}</h4>
+            <div class="feat-corr">|corr| = <strong>{{ f.value.toFixed(4) }}</strong></div>
+            <!-- Mini bar chart representation -->
+            <svg viewBox="0 0 120 60" class="mini-chart">
+              <!-- Légit distribution -->
+              <rect x="10" [attr.y]="60 - (1 - f.value) * 50" width="40" [attr.height]="(1 - f.value) * 50"
+                    fill="rgba(0,217,255,0.5)" rx="3"/>
+              <!-- Fraude distribution (shifted) -->
+              <rect x="70" [attr.y]="60 - f.value * 55" width="40" [attr.height]="f.value * 55"
+                    fill="rgba(255,0,85,0.7)" rx="3"/>
+              <text x="15" y="58" fill="#00d9ff" font-size="7">Légit</text>
+              <text x="72" y="58" fill="#ff0055" font-size="7">Fraude</text>
+            </svg>
+            <p class="feat-desc">
+              {{ i === 0 ? 'Composante PCA la plus discriminante. Patterns comportementaux inhabituels.' :
+                 i === 1 ? 'Fortement corrélée aux transactions géographiquement atypiques.' :
+                           'Signal fort sur les commerçants à risque et patterns horaires.' }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Figures générées -->
+      <div class="glass-card">
+        <h3 class="card-title">🖼️ Figures générées (dossier <code>fraud_outputs/</code>)</h3>
+        <div class="figures-grid">
+          <div class="fig-item" *ngFor="let fig of [
+            {num:'01', name:'class_distribution.png',    desc:'Distribution classes'},
+            {num:'02', name:'amount_distribution.png',   desc:'Montants fraude vs légit'},
+            {num:'03', name:'feature_correlation.png',   desc:'Corrélations features'},
+            {num:'04', name:'heatmap_top10.png',          desc:'Heatmap Top 10'},
+            {num:'05', name:'boxplots_top6.png',          desc:'Boxplots Top 6 features'},
+            {num:'06', name:'confusion_matrices.png',    desc:'Matrices de confusion'},
+            {num:'07', name:'roc_curves.png',             desc:'Courbes ROC comparées'},
+            {num:'08', name:'precision_recall.png',       desc:'Precision-Recall curves'},
+            {num:'09', name:'feature_importance_transformer.png', desc:'Importance Transformer'},
+            {num:'10', name:'attention_weight_maps.png',desc:'Cartes d\'attention'}
+          ]">
+            <div class="fig-num">{{ fig.num }}</div>
+            <div class="fig-name"><code>{{ fig.name }}</code></div>
+            <div class="fig-desc">{{ fig.desc }}</div>
+          </div>
+        </div>
+      </div>
+
+    </ng-container>
+
+    <!-- ╔══════════════════════════════╗
+         ║   ONGLET 3 — MODÈLES        ║
+         ╚══════════════════════════════╝ -->
+    <ng-container *ngIf="activeTab === 'models'">
+
+      <!-- Model selector cards -->
+      <div class="model-selector">
+        <div *ngFor="let m of models" class="model-sel-card"
+             [class.selected]="selectedModel?.name === m.name"
+             [style.--model-color]="m.color"
+             (click)="selectedModel = m">
+          <span class="m-icon">{{ m.icon }}</span>
+          <span class="m-name">{{ m.name }}</span>
+          <span class="m-auc">AUC {{ m.auc }}</span>
+        </div>
+      </div>
+
+      <!-- Comparison table -->
+      <div class="glass-card">
+        <h3 class="card-title">📊 Tableau Comparatif — Test Set (56 746 samples · 95 vraies fraudes)</h3>
+        <div class="table-wrap">
+          <table class="compare-table">
+            <thead>
+              <tr>
+                <th>Modèle</th>
+                <th>Precision 🎯</th>
+                <th class="recall-col">Recall 🚨</th>
+                <th>F1-Score ⚖️</th>
+                <th>AUC-ROC 📈</th>
+                <th>FP (fausses alertes)</th>
+                <th>Verdict</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let m of models" [class.best-row]="m.name === 'Autoencoder'">
+                <td>
+                  <span class="model-tag" [style.border-color]="m.color" [style.color]="m.color">
+                    {{ m.icon }} {{ m.name }}
+                  </span>
+                </td>
+                <td [class.low-val]="m.precision < 0.2">{{ m.precision.toFixed(3) }}</td>
+                <td class="recall-val">{{ m.recall.toFixed(3) }}</td>
+                <td [class.high-val]="m.f1 > 0.5">{{ m.f1.toFixed(3) }}</td>
+                <td [class.high-val]="m.auc > 0.97">{{ m.auc.toFixed(3) }}</td>
+                <td [class.low-val]="m.fp > 200">{{ m.fp | number }}</td>
+                <td>
+                  <span class="verdict-tag" [style.color]="m.verdictColor">
+                    {{ m.verdictColor === '#00ff88' ? '✅' : m.verdictColor === '#ffcc44' ? '⚠️' : '❌' }}
+                    {{ m.verdict.split('—')[0] }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="table-note">
+          🔑 <strong>Priorité : Recall</strong> — Dans le contexte bancaire, un faux négatif (fraude non détectée)
+          coûte plus cher qu'un faux positif (alerte injustifiée).
+        </p>
+      </div>
+
+      <!-- AUC bars + Metrics detail -->
+      <div class="two-col" *ngIf="selectedModel">
+        <!-- Metrics bars -->
+        <div class="glass-card">
+          <h3 class="card-title">{{ selectedModel.icon }} {{ selectedModel.name }} — Métriques détaillées</h3>
+          <div class="metric-bars">
+            <div class="mbar-row">
+              <span class="mbar-label">Precision</span>
+              <div class="mbar-track">
+                <div class="mbar-fill" [style.width.%]="selectedModel.precision * 100"
+                     [style.background]="selectedModel.precision < 0.2 ? '#ff4444' : '#6c63ff'"></div>
+              </div>
+              <span class="mbar-val">{{ (selectedModel.precision * 100).toFixed(1) }}%</span>
+            </div>
+            <div class="mbar-row">
+              <span class="mbar-label">Recall 🚨</span>
+              <div class="mbar-track">
+                <div class="mbar-fill" [style.width.%]="selectedModel.recall * 100"
+                     style="background: linear-gradient(90deg,#ff0055,#ff6699)"></div>
+              </div>
+              <span class="mbar-val recall-hi">{{ (selectedModel.recall * 100).toFixed(1) }}%</span>
+            </div>
+            <div class="mbar-row">
+              <span class="mbar-label">F1-Score</span>
+              <div class="mbar-track">
+                <div class="mbar-fill" [style.width.%]="selectedModel.f1 * 100"
+                     style="background: linear-gradient(90deg,#ffa500,#ffcc44)"></div>
+              </div>
+              <span class="mbar-val">{{ (selectedModel.f1 * 100).toFixed(1) }}%</span>
+            </div>
+            <div class="mbar-row">
+              <span class="mbar-label">AUC-ROC</span>
+              <div class="mbar-track">
+                <div class="mbar-fill" [style.width.%]="selectedModel.auc * 100"
+                     style="background: linear-gradient(90deg,#00d9ff,#005f73)"></div>
+              </div>
+              <span class="mbar-val cyan">{{ (selectedModel.auc * 100).toFixed(1) }}%</span>
+            </div>
+          </div>
+
+          <!-- Mini ROC curve SVG -->
+          <h4 class="sub-title">Courbe ROC (schématique)</h4>
+          <svg viewBox="0 0 220 220" class="roc-svg">
+            <line x1="20" y1="200" x2="210" y2="200" stroke="#334" stroke-width="1"/>
+            <line x1="20" y1="200" x2="20" y2="10" stroke="#334" stroke-width="1"/>
+            <!-- Random baseline -->
+            <line x1="20" y1="200" x2="210" y2="10" stroke="#334" stroke-dasharray="4 3" stroke-width="1" opacity="0.5"/>
+            <!-- ROC curve -->
+            <polyline [attr.points]="rocPoints(selectedModel)"
+                      fill="none" [attr.stroke]="selectedModel.color" stroke-width="2.5" stroke-linecap="round"
+                      transform="translate(20,10)"/>
+            <text x="60" y="215" fill="#556" font-size="8">FPR →</text>
+            <text x="2" y="100" fill="#556" font-size="8" transform="rotate(-90 8 110)">TPR ↑</text>
+            <text x="130" y="50" [attr.fill]="selectedModel.color" font-size="9" font-weight="700">
+              AUC = {{ selectedModel.auc.toFixed(3) }}
+            </text>
+          </svg>
+        </div>
+
+        <!-- Confusion matrix -->
+        <div class="glass-card">
+          <h3 class="card-title">🔲 Matrice de Confusion — {{ selectedModel.name }}</h3>
+          <div class="cm-wrapper">
+            <div class="cm-grid">
+              <div class="cm-empty"></div>
+              <div class="cm-header-col">Prédit Légitime</div>
+              <div class="cm-header-col fraud-header">Prédit Fraude</div>
+
+              <div class="cm-header-row">Réel Légitime</div>
+              <div class="cm-cell tn-cell">
+                <span class="cm-val">{{ selectedModel.tn | number }}</span>
+                <span class="cm-tag">TN ✅</span>
+              </div>
+              <div class="cm-cell fp-cell">
+                <span class="cm-val orange">{{ selectedModel.fp | number }}</span>
+                <span class="cm-tag">FP ⚠️</span>
+              </div>
+
+              <div class="cm-header-row fraud-header-row">Réel Fraude</div>
+              <div class="cm-cell fn-cell">
+                <span class="cm-val red">{{ selectedModel.fn }}</span>
+                <span class="cm-tag">FN 🔴</span>
+              </div>
+              <div class="cm-cell tp-cell">
+                <span class="cm-val green">{{ selectedModel.tp }}</span>
+                <span class="cm-tag">TP ✅</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="cm-legend">
+            <div class="cm-leg-item"><span class="cm-dot green-d"></span><strong>TP {{ selectedModel.tp }}</strong> — Fraudes détectées</div>
+            <div class="cm-leg-item"><span class="cm-dot red-d"></span><strong>FN {{ selectedModel.fn }}</strong> — Fraudes manquées 🔴</div>
+            <div class="cm-leg-item"><span class="cm-dot orange-d"></span><strong>FP {{ selectedModel.fp | number }}</strong> — Fausses alertes</div>
+            <div class="cm-leg-item"><span class="cm-dot grey-d"></span><strong>TN {{ selectedModel.tn | number }}</strong> — Légitimes correctes</div>
+          </div>
+
+          <div class="verdict-box" [style.border-color]="selectedModel.verdictColor">
+            <span class="verdict-title" [style.color]="selectedModel.verdictColor">VERDICT :</span>
+            <p>{{ selectedModel.verdict }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Best model recommendation -->
+      <div class="glass-card champion-card">
+        <div class="champion-header">
+          <span class="trophy">🏆</span>
+          <div>
+            <h3 class="champion-title">MODÈLE RECOMMANDÉ POUR PRODUCTION</h3>
+            <p class="champion-sub">Autoencoder — meilleure performance Recall / Precision / AUC</p>
+          </div>
+        </div>
+        <div class="champion-stats">
+          <div class="champ-stat">
+            <span class="champ-label">Recall</span>
+            <span class="champ-val cyan">0.964</span>
+            <span class="champ-desc">92 fraudes / 95 détectées</span>
+          </div>
+          <div class="champ-stat">
+            <span class="champ-label">Precision</span>
+            <span class="champ-val green">0.928</span>
+            <span class="champ-desc">93% des alertes sont réelles</span>
+          </div>
+          <div class="champ-stat">
+            <span class="champ-label">F1-Score</span>
+            <span class="champ-val purple">0.946</span>
+            <span class="champ-desc">Meilleur équilibre global</span>
+          </div>
+          <div class="champ-stat">
+            <span class="champ-label">AUC-ROC</span>
+            <span class="champ-val orange">0.956</span>
+            <span class="champ-desc">Meilleure discrimination</span>
+          </div>
+          <div class="champ-stat">
+            <span class="champ-label">Fausses alertes</span>
+            <span class="champ-val green">7</span>
+            <span class="champ-desc">sur 56 746 transactions</span>
+          </div>
+        </div>
+      </div>
+
+    </ng-container>
+
+    <!-- ╔══════════════════════════════╗
+         ║   ONGLET 4 — AMÉLIORATIONS  ║
+         ╚══════════════════════════════╝ -->
+    <ng-container *ngIf="activeTab === 'improvements'">
+
+      <div class="improvements-layout">
+
+        <!-- Left : list -->
+        <div class="improvements-list">
+          <h3 class="card-title" style="margin-bottom:16px">📋 10 Axes d'Amélioration</h3>
+          <div *ngFor="let imp of improvements" class="imp-item"
+               [class.active]="activeImprovement?.id === imp.id"
+               [class.priority-immediate]="imp.priority === 'immediate'"
+               [class.priority-medium]="imp.priority === 'medium'"
+               [class.priority-advanced]="imp.priority === 'advanced'"
+               (click)="activeImprovement = imp">
+            <div class="imp-id">{{ imp.id }}</div>
+            <div class="imp-summary">
+              <span class="imp-title">{{ imp.title }}</span>
+              <span class="imp-badges">
+                <span class="impact-badge">{{ imp.impact }}</span>
+                <span class="priority-badge"
+                      [class.p-red]="imp.priority==='immediate'"
+                      [class.p-yellow]="imp.priority==='medium'"
+                      [class.p-green]="imp.priority==='advanced'">
+                  {{ priorityLabel(imp.priority) }}
+                </span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right : detail -->
+        <div class="imp-detail glass-card" *ngIf="activeImprovement">
+          <div class="imp-detail-header">
+            <span class="imp-detail-id">{{ activeImprovement.id }}</span>
+            <div>
+              <h3 class="imp-detail-title">{{ activeImprovement.title }}</h3>
+              <div class="imp-detail-meta">
+                <span>Impact : <strong>{{ activeImprovement.impact }}</strong></span>
+                <span>Complexité : <strong>{{ activeImprovement.complexity }}</strong></span>
+                <span class="priority-badge"
+                      [class.p-red]="activeImprovement.priority==='immediate'"
+                      [class.p-yellow]="activeImprovement.priority==='medium'"
+                      [class.p-green]="activeImprovement.priority==='advanced'">
+                  {{ priorityLabel(activeImprovement.priority) }}
+                </span>
+              </div>
+            </div>
+          </div>
+          <p class="imp-detail-desc">{{ activeImprovement.description }}</p>
+          <div *ngIf="activeImprovement.code" class="code-block">
+            <div class="code-header">Python</div>
+            <pre><code>{{ activeImprovement.code }}</code></pre>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Roadmap visual -->
+      <div class="glass-card">
+        <h3 class="card-title">🗓️ Roadmap d'Amélioration — Impact vs Effort</h3>
+        <div class="roadmap-grid">
+          <div class="roadmap-col">
+            <div class="roadmap-header red-header">🔴 Semaine 1 — Immédiat</div>
+            <div class="roadmap-items">
+              <div *ngFor="let imp of improvements | slice:0:3" class="roadmap-item red-item">
+                <span class="ri-id">{{ imp.id }}</span>
+                <span>{{ imp.title }}</span>
+                <span class="ri-impact">{{ imp.impact }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="roadmap-col">
+            <div class="roadmap-header yellow-header">🟡 Semaines 2-3 — Moyen terme</div>
+            <div class="roadmap-items">
+              <div *ngFor="let imp of improvements | slice:3:7" class="roadmap-item yellow-item">
+                <span class="ri-id">{{ imp.id }}</span>
+                <span>{{ imp.title }}</span>
+                <span class="ri-impact">{{ imp.impact }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="roadmap-col">
+            <div class="roadmap-header green-header">🟢 Semaines 4+ — Long terme</div>
+            <div class="roadmap-items">
+              <div *ngFor="let imp of improvements | slice:7:10" class="roadmap-item green-item">
+                <span class="ri-id">{{ imp.id }}</span>
+                <span>{{ imp.title }}</span>
+                <span class="ri-impact">{{ imp.impact }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Summary box -->
+      <div class="glass-card summary-card">
+        <div class="summary-inner">
+          <div class="sum-col">
+            <h4 class="sum-title cyan">📌 État actuel</h4>
+            <ul class="sum-list">
+              <li>✅ 283 726 transactions analysées</li>
+              <li>✅ SMOTE appliqué — classes équilibrées</li>
+              <li>✅ Autoencoder : Recall 0.964 · AUC 0.956</li>
+              <li>✅ 10 visualisations générées</li>
+            </ul>
+          </div>
+          <div class="sum-divider"></div>
+          <div class="sum-col">
+            <h4 class="sum-title orange">🎯 Objectifs court terme</h4>
+            <ul class="sum-list">
+              <li>🔴 Threshold tuning Autoencoder → Recall cible 0.97+</li>
+              <li>🔴 Fine-tuning Transformer + Attention</li>
+              <li>🟡 SMOTETomek pour frontière améliorée</li>
+              <li>🟡 Feature engineering Time & Amount</li>
+            </ul>
+          </div>
+          <div class="sum-divider"></div>
+          <div class="sum-col">
+            <h4 class="sum-title purple">🚀 Vision long terme</h4>
+            <ul class="sum-list">
+              <li>🟢 Intégration API FraudExia FastAPI</li>
+              <li>🟢 MLP Deep Learning (PyTorch)</li>
+              <li>🟢 Autoencoder détection d'anomalies</li>
+              <li>🟢 MLOps monitoring en production</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </ng-container>
+
+  </main>
+</div>
+
+

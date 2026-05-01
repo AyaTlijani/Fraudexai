@@ -1,0 +1,263 @@
+/* Global Styles */
+:root {
+  --app-bg: linear-gradient(150deg, #f7faff 0%, #edf3ff 56%, #e7eefb 100%);
+  --app-text: #1f2b46;
+  --theme-page-bg: linear-gradient(150deg, #f8fbff 0%, #eef4ff 55%, #e8effd 100%);
+  --theme-page-text: #1c2845;
+  --theme-page-muted: #5a688d;
+  --theme-card-bg: rgba(255, 255, 255, 0.92);
+  --theme-card-border: rgba(106, 124, 179, 0.3);
+  --theme-input-bg: #f3f6ff;
+  --theme-input-border: rgba(96, 114, 170, 0.42);
+  --theme-shadow: 0 16px 34px rgba(31, 47, 92, 0.14);
+  --app-scrollbar-track: #dfe6f6;
+  --app-scrollbar-thumb: #6674da;
+  --app-scrollbar-thumb-hover: #5564c9;
+  --app-selection-bg: #5f6dd9;
+  --app-focus-ring: #5f6dd9;
+  --theme-switcher-bg: rgba(255, 255, 255, 0.92);
+  --theme-switcher-fg: #2b3860;
+  --theme-switcher-hover-bg: rgba(95, 109, 217, 0.14);
+  --theme-switcher-active-bg: linear-gradient(135deg, #5f6dd9 0%, #4f5fc4 100%);
+  --theme-switcher-active-fg: #ffffff;
+}
+
+:root[data-theme='dark'] {
+  --app-bg: linear-gradient(135deg, #141627 0%, #111529 52%, #1d1a36 100%);
+  --app-text: #f0f3ff;
+  --theme-page-bg: linear-gradient(135deg, #141627 0%, #111529 52%, #1d1a36 100%);
+  --theme-page-text: #edf0ff;
+  --theme-page-muted: #aab0d4;
+  --theme-card-bg: rgba(22, 27, 47, 0.9);
+  --theme-card-border: rgba(173, 168, 255, 0.26);
+  --theme-input-bg: rgba(20, 25, 44, 0.95);
+  --theme-input-border: rgba(168, 176, 214, 0.3);
+  --theme-shadow: 0 14px 34px rgba(0, 0, 0, 0.42);
+  --app-scrollbar-track: #262a3f;
+  --app-scrollbar-thumb: #8e88ff;
+  --app-scrollbar-thumb-hover: #a9a4ff;
+  --app-selection-bg: #8e88ff;
+  --app-focus-ring: #a9a4ff;
+  --theme-switcher-bg: rgba(19, 23, 40, 0.88);
+  --theme-switcher-fg: #d4d8ff;
+  --theme-switcher-hover-bg: rgba(173, 168, 255, 0.16);
+  --theme-switcher-active-bg: linear-gradient(135deg, #807aff 0%, #665fff 100%);
+  --theme-switcher-active-fg: #ffffff;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+              'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica',
+              'Arial', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: var(--app-text);
+  background: var(--app-bg);
+  min-height: 100vh;
+  transition: background 220ms ease, color 220ms ease;
+}
+
+app-root {
+  display: block;
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--app-scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--app-scrollbar-thumb);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--app-scrollbar-thumb-hover);
+}
+
+/* Selection Styling */
+::selection {
+  background-color: var(--app-selection-bg);
+  color: white;
+}
+
+::-moz-selection {
+  background-color: var(--app-selection-bg);
+  color: white;
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Focus Visible Styling */
+:focus-visible {
+  outline: 3px solid var(--app-focus-ring);
+  outline-offset: 2px;
+}
+
+button:focus-visible {
+  outline: 3px solid var(--app-focus-ring);
+  outline-offset: 2px;
+}
+
+a:focus-visible {
+  outline: 3px solid var(--app-focus-ring);
+  outline-offset: 2px;
+}
+
+/* Global Theme Surfaces */
+:root[data-theme='light'] .hero-container,
+:root[data-theme='light'] .selection-container,
+:root[data-theme='light'] .auth-container,
+:root[data-theme='light'] .client-hub-container,
+:root[data-theme='light'] .command-center,
+:root[data-theme='light'] .forensic-lab,
+:root[data-theme='light'] .hub-container,
+:root[data-theme='light'] .ai-lab-container,
+:root[data-theme='light'] .dashboard-container,
+:root[data-theme='light'] .shell-container,
+:root[data-theme='light'] .main-content {
+  background: var(--theme-page-bg) !important;
+  color: var(--theme-page-text) !important;
+}
+
+:root[data-theme='dark'] .hero-container,
+:root[data-theme='dark'] .selection-container,
+:root[data-theme='dark'] .auth-container,
+:root[data-theme='dark'] .client-hub-container,
+:root[data-theme='dark'] .command-center,
+:root[data-theme='dark'] .forensic-lab,
+:root[data-theme='dark'] .hub-container,
+:root[data-theme='dark'] .ai-lab-container,
+:root[data-theme='dark'] .dashboard-container,
+:root[data-theme='dark'] .shell-container,
+:root[data-theme='dark'] .main-content {
+  background: var(--theme-page-bg) !important;
+  color: var(--theme-page-text) !important;
+}
+
+:root[data-theme='light'] .auth-card,
+:root[data-theme='light'] .selection-card,
+:root[data-theme='light'] .stat-card,
+:root[data-theme='light'] .world-map-card,
+:root[data-theme='light'] .gauges-card,
+:root[data-theme='light'] .insight-card,
+:root[data-theme='light'] .grid-card,
+:root[data-theme='light'] .trust-score-card,
+:root[data-theme='light'] .timeline-section,
+:root[data-theme='light'] .case-details-section,
+:root[data-theme='light'] .comparison-column,
+:root[data-theme='light'] .transactions-section,
+:root[data-theme='light'] .transactions-table,
+:root[data-theme='light'] .top-bar,
+:root[data-theme='light'] .hub-header,
+:root[data-theme='light'] .glass-panel,
+:root[data-theme='light'] .threshold-panel,
+:root[data-theme='light'] .training-vis,
+:root[data-theme='light'] .modal-content {
+  background: var(--theme-card-bg) !important;
+  border-color: var(--theme-card-border) !important;
+  box-shadow: var(--theme-shadow) !important;
+  color: var(--theme-page-text) !important;
+}
+
+:root[data-theme='dark'] .auth-card,
+:root[data-theme='dark'] .selection-card,
+:root[data-theme='dark'] .stat-card,
+:root[data-theme='dark'] .world-map-card,
+:root[data-theme='dark'] .gauges-card,
+:root[data-theme='dark'] .insight-card,
+:root[data-theme='dark'] .grid-card,
+:root[data-theme='dark'] .trust-score-card,
+:root[data-theme='dark'] .timeline-section,
+:root[data-theme='dark'] .case-details-section,
+:root[data-theme='dark'] .comparison-column,
+:root[data-theme='dark'] .transactions-section,
+:root[data-theme='dark'] .transactions-table,
+:root[data-theme='dark'] .top-bar,
+:root[data-theme='dark'] .hub-header,
+:root[data-theme='dark'] .glass-panel,
+:root[data-theme='dark'] .threshold-panel,
+:root[data-theme='dark'] .training-vis,
+:root[data-theme='dark'] .modal-content {
+  background: var(--theme-card-bg) !important;
+  border-color: var(--theme-card-border) !important;
+  box-shadow: var(--theme-shadow) !important;
+  color: var(--theme-page-text) !important;
+}
+
+:root[data-theme='light'] input,
+:root[data-theme='light'] textarea,
+:root[data-theme='light'] select,
+:root[data-theme='light'] .search-input,
+:root[data-theme='light'] .form-input,
+:root[data-theme='light'] .form-textarea {
+  background: var(--theme-input-bg) !important;
+  color: var(--theme-page-text) !important;
+  border-color: var(--theme-input-border) !important;
+}
+
+:root[data-theme='dark'] input,
+:root[data-theme='dark'] textarea,
+:root[data-theme='dark'] select,
+:root[data-theme='dark'] .search-input,
+:root[data-theme='dark'] .form-input,
+:root[data-theme='dark'] .form-textarea {
+  background: var(--theme-input-bg) !important;
+  color: var(--theme-page-text) !important;
+  border-color: var(--theme-input-border) !important;
+}
+
+:root[data-theme='light'] p,
+:root[data-theme='light'] small,
+:root[data-theme='light'] label {
+  color: var(--theme-page-muted);
+}
+
+:root[data-theme='dark'] p,
+:root[data-theme='dark'] small,
+:root[data-theme='dark'] label {
+  color: var(--theme-page-muted);
+}
+
+:root[data-theme='light'] h1,
+:root[data-theme='light'] h2,
+:root[data-theme='light'] h3,
+:root[data-theme='light'] h4,
+:root[data-theme='light'] h5,
+:root[data-theme='light'] h6,
+:root[data-theme='dark'] h1,
+:root[data-theme='dark'] h2,
+:root[data-theme='dark'] h3,
+:root[data-theme='dark'] h4,
+:root[data-theme='dark'] h5,
+:root[data-theme='dark'] h6 {
+  color: var(--theme-page-text);
+}

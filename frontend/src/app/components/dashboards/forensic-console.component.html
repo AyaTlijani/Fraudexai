@@ -2,69 +2,169 @@
 
   <!-- HEADER -->
   <div class="header">
-    <h1>Fraud Dashboard</h1>
+    <h1>⚡ Live Fraud Forensic Console</h1>
     <button (click)="goBackToDashboard()">Back</button>
   </div>
 
   <!-- STATS -->
   <div class="stats">
-    <div class="chip">Frauds: {{ stats.totalFrauds }}</div>
-    <div class="chip">Missed: {{ confusionMatrix.FN }}</div>
-    <div class="chip">Max Score: {{ stats.highestScore | number:'1.2-2' }}</div>
+    <div class="chip">🔥 Frauds: {{ stats.totalFrauds }}</div>
+    <div class="chip">📈 Max Score: {{ stats.highestScore | number:'1.2-2' }}</div>
   </div>
 
-  <!-- MAIN GRID -->
   <div class="layout">
 
-    <!-- LEFT: TABLE (always visible sidebar) -->
+    <!-- LEFT: LIVE STREAM -->
     <div class="left card table">
-      <h3>Transactions</h3>
+      <h3>Live Stream</h3>
 
-      <div *ngFor="let r of report" class="row">
+      <div
+        *ngFor="let r of report"
+        class="row"
+        [ngClass]="{ 'fraud-row': r.predicted === 'FRAUD' }"
+      >
         <span>#{{ r.tx_id }}</span>
         <span>{{ r.score | number:'1.2-2' }}</span>
-        <button (click)="inspectTransaction(r)">View</button>
+        <button (click)="inspectTransaction(r)">Inspect</button>
       </div>
     </div>
 
-    <!-- CENTER CONTENT -->
+    <!-- CENTER -->
     <div class="center">
 
-      <!-- TIMELINE (FULL WIDTH TOP) -->
       <div class="card hero">
-        <h3>Fraud Score Timeline</h3>
+        <h3>📊 Fraud Score Timeline (Live)</h3>
         <canvas baseChart [data]="fraudScoreChart" [type]="'line'"></canvas>
       </div>
 
-      <!-- LOWER GRID: SCATTER + DONUT -->
       <div class="bottom">
 
         <div class="card scatter">
-          <h3>Feature Space</h3>
-          <canvas baseChart [data]="scatterChart" [type]="'scatter'"></canvas>
+          <h3>🧠 Anomaly Spike Detector (Fraud Only)</h3>
+          <canvas baseChart [data]="scatterChart" [type]="'line'"></canvas>
         </div>
 
         <div class="card donut">
-          <h3>Risk</h3>
+          <h3>⚠ Risk Flow</h3>
           <canvas baseChart [data]="riskPieChart" [type]="'doughnut'"></canvas>
         </div>
 
       </div>
-
     </div>
 
-    <!-- RIGHT: DETAIL PANEL (appears on click) -->
+    <!-- RIGHT: FORENSIC INVESTIGATION PANEL -->
     <div class="right">
 
-      <div *ngIf="selectedTransaction" class="card detail">
-        <h3>Transaction #{{ selectedTransaction.tx_id }}</h3>
+      <!-- LOADED STATE -->
+      <div *ngIf="selectedTransaction && rawTransactionData" class="fp-panel">
 
-        <p>
-          Score: {{ selectedTransaction.score }} |
-          Risk: {{ selectedTransaction.risk }}
-        </p>
+        <!-- panel header -->
+        <div class="fp-header">
+          <span class="fp-header-icon">⬡</span>
+          <span class="fp-header-title">Forensic investigation</span>
+        </div>
 
-        <canvas baseChart [data]="radarChart" [type]="'radar'"></canvas>
+        <!-- meta rows -->
+        <div class="fp-meta">
+          <div class="fp-row">
+            <span class="fp-key">Transaction</span>
+            <span class="fp-val">#{{ selectedTransaction.tx_id }}</span>
+          </div>
+          <div class="fp-row">
+            <span class="fp-key">Model prediction</span>
+            <span class="fp-badge"
+              [ngClass]="{
+                'badge-fraud': selectedTransaction.predicted === 'FRAUD',
+                'badge-safe':  selectedTransaction.predicted !== 'FRAUD'
+              }">
+              {{ selectedTransaction.predicted }}
+            </span>
+          </div>
+          <div class="fp-row">
+            <span class="fp-key">Ground truth</span>
+            <span class="fp-badge"
+              [ngClass]="{
+                'badge-fraud': rawTransactionData['true'] === 'FRAUD',
+                'badge-safe':  rawTransactionData['true'] !== 'FRAUD'
+              }">
+              {{ rawTransactionData['true'] === 'FRAUD' ? 'True fraud' : 'Legitimate' }}
+            </span>
+          </div>
+          <div class="fp-row">
+            <span class="fp-key">Risk level</span>
+            <span class="fp-badge"
+              [ngClass]="{
+                'badge-high':   selectedTransaction.risk === 'HIGH',
+                'badge-medium': selectedTransaction.risk === 'MEDIUM',
+                'badge-low':    selectedTransaction.risk === 'LOW'
+              }">
+              {{ selectedTransaction.risk }}
+            </span>
+          </div>
+          <div class="fp-row">
+            <span class="fp-key">Fraud score</span>
+            <span class="fp-score">{{ selectedTransaction.score | number:'1.4-4' }}</span>
+          </div>
+        </div>
+
+        <!-- verdict -->
+        <div class="fp-verdict-wrap">
+          <div class="fp-verdict"
+            [ngClass]="getVerdict(selectedTransaction.predicted, rawTransactionData['true']).css">
+            {{ getVerdict(selectedTransaction.predicted, rawTransactionData['true']).label }}
+          </div>
+        </div>
+
+        <div class="fp-divider"></div>
+
+        <!-- feature highlights -->
+        <div class="fp-section">
+          <div class="fp-section-label">Feature highlights</div>
+          <div class="fp-feat-list">
+            <div
+              *ngFor="let f of rawTransactionData.features; let i = index"
+              class="fp-feat-row"
+            >
+              <span class="fp-feat-label">F{{ i + 1 }}</span>
+              <div class="fp-bar-bg">
+                <div
+                  class="fp-bar-fill"
+                  [style.width.%]="getFeatureBarWidth(f, rawTransactionData.features)"
+                  [ngClass]="f < 0 ? 'bar-neg' : 'bar-pos'"
+                ></div>
+              </div>
+              <span class="fp-feat-val" [ngClass]="f < 0 ? 'val-neg' : 'val-pos'">
+                {{ f | number:'1.2-2' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="fp-divider"></div>
+
+        <!-- raw JSON -->
+        <div class="fp-raw">
+          <div class="fp-raw-header">
+            <span class="fp-section-label">Raw transaction</span>
+            <button class="fp-toggle-btn" (click)="toggleRawJson()">
+              {{ showRawJson ? 'Collapse ↑' : 'Expand JSON ↓' }}
+            </button>
+          </div>
+          <pre *ngIf="showRawJson" class="fp-json">{{ rawTransactionData | json }}</pre>
+        </div>
+
+      </div>
+
+      <!-- LOADING STATE -->
+      <div *ngIf="selectedTransaction && !rawTransactionData" class="fp-panel fp-state">
+        <span class="fp-state-icon">⏳</span>
+        <p>Loading transaction data…</p>
+      </div>
+
+      <!-- EMPTY STATE -->
+      <div *ngIf="!selectedTransaction" class="fp-panel fp-state">
+        <span class="fp-state-icon">🔍</span>
+        <p>Click <strong>Inspect</strong> on any transaction to open the forensic panel.</p>
       </div>
 
     </div>

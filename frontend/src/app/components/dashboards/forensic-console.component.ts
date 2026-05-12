@@ -1,32 +1,27 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
 import { NgChartsModule } from 'ng2-charts';
-import { ChartConfiguration, ChartOptions } from 'chart.js';
+import { ChartConfiguration } from 'chart.js';
+import { Subscription } from 'rxjs';
 
-interface Transaction {
-  tx_id: number;
-  features: number[];
-  true: string;
-}
+import { StreamService } from '../../services/stream.service';
 
-interface History {
+interface StreamTx {
   tx_id: number;
   status: string;
   risk: string;
   score: number;
+  features?: number[];
+  true?: string;
 }
 
 interface ReportItem {
   tx_id: number;
-  true_label: string;
-  predicted: string;
-  risk: string;
   score: number;
-  case_type: string;
-  anomalyMagnitude: number;
-  dominantFeature: string;
+  risk: string;
+  predicted: string;
+  true_label: string;
   features: number[];
 }
 
@@ -37,235 +32,267 @@ interface ReportItem {
   templateUrl: './forensic-console.component.html',
   styleUrls: ['./forensic-console.component.scss']
 })
-export class ForensicConsoleComponent implements OnInit {
+export class ForensicConsoleComponent implements OnInit, OnDestroy {
 
-  transactions: Transaction[] = [];
-  history: History[] = [];
-  report: ReportItem[] = [];
+  private sub?: Subscription;
 
-  missedFrauds: ReportItem[] = [];
-  selectedTransaction: ReportItem | null = null;
+  private static seenTx = new Set<number>();
+  private static reportCache: ReportItem[] = [];
 
-  confusionMatrix = {
-    TP: 0,
-    FP: 0,
-    FN: 0,
-    TN: 0
+  private static chartCache = {
+    labels: [] as string[],
+    scores: [] as number[],
+    fraud: [] as any[],
+    risk: [0, 0, 0] as number[]
   };
+
+  selectedTransaction: ReportItem | null = null;
+  rawTransactionData: any | null = null;
+  showRawJson: boolean = false;
+
+  report: ReportItem[] = ForensicConsoleComponent.reportCache;
 
   stats = {
     totalFrauds: 0,
     highestScore: 0
   };
 
-  // CHARTS
-  fraudScoreChart!: ChartConfiguration<'line'>['data'];
-  riskPieChart!: ChartConfiguration<'doughnut'>['data'];
-  scatterChart!: ChartConfiguration<'scatter'>['data'];
-  radarChart!: ChartConfiguration<'radar'>['data'];
+  // =========================
+  // FRAUD TIMELINE
+  // =========================
+  fraudScoreChart: ChartConfiguration<'line'>['data'] = {
+    labels: [],
+    datasets: [{
+      label: 'Fraud Score Live',
+      data: [],
+      borderColor: '#00d9ff',
+      fill: true,
+      tension: 0.35
+    }]
+  };
 
-  fraudScoreOptions: ChartOptions<'line'> = { responsive: true, maintainAspectRatio: false };
-  pieOptions: ChartOptions<'doughnut'> = { responsive: true, maintainAspectRatio: false };
-  scatterOptions: ChartOptions<'scatter'> = { responsive: true, maintainAspectRatio: false };
-  radarOptions: ChartOptions<'radar'> = { responsive: true, maintainAspectRatio: false };
+  // =========================
+  // RISK FLOW
+  // =========================
+  riskPieChart: ChartConfiguration<'doughnut'>['data'] = {
+    labels: ['HIGH', 'MEDIUM', 'LOW'],
+    datasets: [{ data: [0, 0, 0] }]
+  };
+
+  // =========================
+  // FRAUD SPIKE TIMELINE
+  // =========================
+  scatterChart: ChartConfiguration<'line'>['data'] = {
+    labels: [],
+    datasets: [
+      {
+        label: 'Fraud Spike Timeline',
+        data: [],
+        borderColor: '#ff4d4d',
+        backgroundColor: 'rgba(255,77,77,0.25)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 5
+      }
+    ]
+  };
 
   constructor(
-    private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private streamService: StreamService
   ) {}
 
+  // =========================
+  // INIT
+  // =========================
   ngOnInit(): void {
-    this.loadData();
-  }
+    this.restoreFromCache();
+    this.streamService.connect();
 
-  // ----------------------------
-  // LOAD DATA
-  // ----------------------------
-  loadData(): void {
-    this.http.get<Transaction[]>('assets/transactions.json').subscribe(tx => {
-      this.http.get<History[]>('assets/history.json').subscribe(hist => {
-        this.transactions = tx;
-        this.history = hist;
-        this.runAnalysis();
-      });
+    this.sub = this.streamService.stream$.subscribe((data: any) => {
+      const txs: StreamTx[] = Array.isArray(data) ? data : [data];
+      txs.forEach(tx => this.handleIncoming(tx));
     });
   }
 
-  // ----------------------------
-  // MAIN ANALYSIS
-  // ----------------------------
-  runAnalysis(): void {
-    this.resetState();
-
-    this.report = this.transactions.map((tx, i) => {
-      const h = this.history[i];
-
-      const item: ReportItem = {
-        tx_id: tx.tx_id,
-        true_label: tx.true,
-        predicted: h.status,
-        risk: h.risk,
-        score: h.score,
-        case_type: this.getCaseType(h.status, tx.true),
-        anomalyMagnitude: this.getMagnitude(tx.features),
-        dominantFeature: this.getDominantFeature(tx.features),
-        features: tx.features
-      };
-
-      this.updateConfusion(item.case_type);
-
-      if (item.case_type === 'FALSE_NEGATIVE') {
-        this.missedFrauds.push(item);
-      }
-
-      return item;
-    });
-
-    this.computeStats();
-    this.buildCharts();
+  ngOnDestroy(): void {
+    this.sub?.unsubscribe();
   }
 
-  // ----------------------------
-  // RESET
-  // ----------------------------
-  resetState(): void {
-    this.report = [];
-    this.missedFrauds = [];
+  // =========================
+  // STREAM HANDLER
+  // =========================
+  private handleIncoming(tx: StreamTx): void {
+    if (ForensicConsoleComponent.seenTx.has(tx.tx_id)) return;
+    ForensicConsoleComponent.seenTx.add(tx.tx_id);
 
-    this.confusionMatrix = {
-      TP: 0,
-      FP: 0,
-      FN: 0,
-      TN: 0
+    const item: ReportItem = this.map(tx);
+    ForensicConsoleComponent.reportCache.push(item);
+    this.report = ForensicConsoleComponent.reportCache;
+
+    if (item.predicted === 'FRAUD') {
+      this.stats.totalFrauds++;
+    }
+
+    this.stats.highestScore = Math.max(this.stats.highestScore, item.score);
+
+    this.updateCache(tx, item);
+    this.updateCharts();
+  }
+
+  // =========================
+  // MAP
+  // =========================
+  private map(tx: StreamTx): ReportItem {
+    return {
+      tx_id: tx.tx_id,
+      score: tx.score,
+      risk: tx.risk,
+      predicted: tx.status,
+      true_label: tx.true || 'UNKNOWN',
+      features: tx.features || []
     };
   }
 
-  // ----------------------------
-  // CLASSIFICATION
-  // ----------------------------
-  getCaseType(pred: string, truth: string): string {
-    if (pred === 'FRAUD' && truth === 'FRAUD') return 'TP';
-    if (pred === 'FRAUD' && truth === 'OK') return 'FP';
-    if (pred === 'OK' && truth === 'FRAUD') return 'FN';
-    return 'TN';
+  // =========================
+  // CACHE UPDATE
+  // =========================
+  private updateCache(tx: StreamTx, item: ReportItem): void {
+    const c = ForensicConsoleComponent.chartCache;
+
+    c.labels.push(`TX ${tx.tx_id}`);
+    c.scores.push(tx.score);
+
+    if (item.predicted === 'FRAUD') {
+      c.fraud.push({ label: `Fraud ${c.fraud.length + 1}`, score: item.score });
+    }
+
+    if (tx.risk === 'HIGH')        c.risk[0]++;
+    else if (tx.risk === 'MEDIUM') c.risk[1]++;
+    else                           c.risk[2]++;
   }
 
-  updateConfusion(type: string): void {
-    this.confusionMatrix[type as keyof typeof this.confusionMatrix]++;
-  }
+  // =========================
+  // RESTORE CACHE
+  // =========================
+  private restoreFromCache(): void {
+    const c = ForensicConsoleComponent.chartCache;
 
-  // ----------------------------
-  // FEATURE ANALYTICS
-  // ----------------------------
-  getMagnitude(features: number[]): number {
-    return Number(
-      Math.sqrt(features.reduce((s, v) => s + v * v, 0)).toFixed(2)
-    );
-  }
-
-  getDominantFeature(features: number[]): string {
-    let max = 0;
-    let index = 0;
-
-    features.forEach((val, i) => {
-      const abs = Math.abs(val);
-      if (abs > max) {
-        max = abs;
-        index = i;
-      }
-    });
-
-    return `Feature ${index}`;
-  }
-
-  // ----------------------------
-  // STATS
-  // ----------------------------
-  computeStats(): void {
-    this.stats.totalFrauds = this.report.filter(r => r.predicted === 'FRAUD').length;
-
-    this.stats.highestScore = this.report.length
-      ? Math.max(...this.report.map(r => r.score))
-      : 0;
-  }
-
-  // ----------------------------
-  // CHARTS
-  // ----------------------------
-  buildCharts(): void {
-    this.buildFraudScoreChart();
-    this.buildRiskChart();
-    this.buildScatterChart();
-  }
-
-  buildFraudScoreChart(): void {
     this.fraudScoreChart = {
-      labels: this.report.map(r => `TX ${r.tx_id}`),
+      labels: [...c.labels],
       datasets: [{
-        label: 'Fraud Score',
-        data: this.report.map(r => r.score),
+        label: 'Fraud Score Live',
+        data: [...c.scores],
         borderColor: '#00d9ff',
         fill: true,
-        tension: 0.4
+        tension: 0.35
       }]
     };
-  }
 
-  buildRiskChart(): void {
-    const high = this.report.filter(r => r.risk === 'HIGH').length;
-    const med = this.report.filter(r => r.risk === 'MEDIUM').length;
-    const low = this.report.filter(r => r.risk === 'LOW').length;
+    this.scatterChart = {
+      labels: c.fraud.map(f => f.label),
+      datasets: [{
+        label: 'Fraud Spike Timeline',
+        data: c.fraud.map(f => f.score),
+        borderColor: '#ff4d4d',
+        backgroundColor: 'rgba(255,77,77,0.25)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 5
+      }]
+    };
 
     this.riskPieChart = {
       labels: ['HIGH', 'MEDIUM', 'LOW'],
+      datasets: [{ data: [...c.risk] }]
+    };
+  }
+
+  // =========================
+  // LIVE UPDATE
+  // =========================
+  private updateCharts(): void {
+    const c = ForensicConsoleComponent.chartCache;
+
+    this.fraudScoreChart = {
+      ...this.fraudScoreChart,
+      labels: [...c.labels],
       datasets: [{
-        data: [high, med, low],
-        backgroundColor: ['#ff4d4d', '#ffb703', '#00d9ff']
+        ...this.fraudScoreChart.datasets[0],
+        data: [...c.scores]
       }]
     };
-  }
 
-  buildScatterChart(): void {
     this.scatterChart = {
-      datasets: [
-        {
-          label: 'Fraud',
-          data: this.report
-            .filter(r => r.predicted === 'FRAUD')
-            .map(r => ({ x: r.features[0], y: r.features[1] })),
-          pointBackgroundColor: '#ff4d4d'
-        },
-        {
-          label: 'Normal',
-          data: this.report
-            .filter(r => r.predicted === 'OK')
-            .map(r => ({ x: r.features[0], y: r.features[1] })),
-          pointBackgroundColor: '#00d9ff'
-        }
-      ]
+      labels: c.fraud.map(f => f.label),
+      datasets: [{
+        label: 'Fraud Spike Timeline',
+        data: c.fraud.map(f => f.score),
+        borderColor: '#ff4d4d',
+        backgroundColor: 'rgba(255,77,77,0.25)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 5
+      }]
+    };
+    this.scatterChart = { ...this.scatterChart };
+
+    this.riskPieChart = {
+      labels: ['HIGH', 'MEDIUM', 'LOW'],
+      datasets: [{ data: [...c.risk] }]
     };
   }
 
-  // ----------------------------
-  // RADAR VIEW
-  // ----------------------------
+  // =========================
+  // INSPECT
+  // Fetches assets/transactions.json, finds matching tx_id,
+  // stores raw object for the forensic panel.
+  // =========================
   inspectTransaction(tx: ReportItem): void {
     this.selectedTransaction = tx;
+    this.rawTransactionData = null;
+    this.showRawJson = false;
 
-    this.radarChart = {
-      labels: tx.features.map((_, i) => `F${i}`),
-      datasets: [{
-        label: `TX ${tx.tx_id}`,
-        data: tx.features,
-        borderColor: '#ff4d4d',
-        backgroundColor: 'rgba(255,77,77,0.2)'
-      }]
-    };
+    fetch('assets/transactions.json')
+      .then(res => res.json())
+      .then((allTx: any[]) => {
+        const match = allTx.find(t => t.tx_id === tx.tx_id);
+        this.rawTransactionData = match
+          ?? { error: `TX #${tx.tx_id} not found in transactions.json` };
+      })
+      .catch(err => {
+        this.rawTransactionData = {
+          error: 'Failed to load transactions.json',
+          detail: String(err)
+        };
+      });
   }
 
-  // ----------------------------
-  // NAVIGATION
-  // ----------------------------
+  toggleRawJson(): void {
+    this.showRawJson = !this.showRawJson;
+  }
+
+  // =========================
+  // VERDICT
+  // pred  = model output  ("FRAUD" | "SAFE")
+  // truth = transactions.json "true" field ("FRAUD" | "OK")
+  // =========================
+  getVerdict(pred: string, truth: string): { label: string; css: string } {
+    if (pred === 'FRAUD' && truth === 'FRAUD') return { label: '🚨 CONFIRMED FRAUD',           css: 'verdict-confirmed' };
+    if (pred === 'FRAUD' && truth === 'OK')    return { label: '⚠️ FALSE POSITIVE',             css: 'verdict-fp'        };
+    if (pred !== 'FRAUD' && truth === 'FRAUD') return { label: '❌ MISSED FRAUD (FALSE NEG)',  css: 'verdict-fn'        };
+                                               return { label: '✅ CORRECTLY SAFE',             css: 'verdict-safe'      };
+  }
+
+  getFeatureBarWidth(value: number, allValues: number[]): number {
+    const max = Math.max(...allValues.map(Math.abs));
+    if (max === 0) return 0;
+    return Math.round((Math.abs(value) / max) * 100);
+  }
+
+  // =========================
+  // NAV
+  // =========================
   goBackToDashboard(): void {
     this.router.navigate(['/admin-dashboard']);
   }

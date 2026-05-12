@@ -37,27 +37,6 @@
       class="auth-form login-form"
       [@.disabled]="false">
 
-      <section class="demo-launchpad">
-        <div class="launchpad-head">
-          <h3>{{ 'auth.tryNewFlow' | t }}</h3>
-          <p>{{ 'auth.launchpadHint' | t }}</p>
-        </div>
-
-        <div class="launchpad-actions">
-          <button type="button" class="demo-btn admin" (click)="quickLogin('admin')" [disabled]="isLoading">
-            {{ 'auth.enterAdminMission' | t }}
-          </button>
-          <button type="button" class="demo-btn client" (click)="quickLogin('client')" [disabled]="isLoading">
-            {{ 'auth.enterClientHub' | t }}
-          </button>
-        </div>
-
-        <div class="launchpad-links">
-          <button type="button" class="mini-link" (click)="openExternal('http://localhost:8501')">{{ 'auth.openAnalystApp' | t }}</button>
-          <button type="button" class="mini-link" (click)="openExternal('http://localhost:8000/docs')">{{ 'auth.openApiDocs' | t }}</button>
-        </div>
-      </section>
-      
       <!-- Identifier Input -->
       <div class="form-group">
         <label for="login-identifier" class="form-label">{{ 'auth.emailOrUsername' | t }}</label>
